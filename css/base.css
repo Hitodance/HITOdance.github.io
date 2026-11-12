@@ -1,0 +1,205 @@
+/* =========================================================
+   base.css — 整個網站共用的設定
+   1. 顏色、字體變數（照 style guide）
+   2. 畫布 #stage 與背景
+   3. 共用元件：提示字、按鍵圖示、玩家標籤、小人
+   ========================================================= */
+
+:root {
+  /* ---------- Color System ---------- */
+  --pink: #ff00ff;
+  --orange: #ff6500;
+  --green: #00ff40;
+
+  --cyan: #00ffff;
+  --grad-cool: linear-gradient(160deg, var(--green), var(--cyan)); /* 綠 → 青 */
+  --grad-warm: linear-gradient(
+    180deg,
+    var(--pink),
+    var(--orange)
+  ); /* 桃紅 → 橘 */
+
+  --white: #ffffff;
+  --gray: #d9d9d9;
+  --black: #000000;
+
+  /* 玩家代表色：P1 冷色、P2 暖色（想換就改這裡） */
+  --p1: var(--cyan);
+  --p2: var(--pink);
+
+  /* ---------- Typography System ---------- */
+  /* 只用兩種字體：英文、數字 → Helvetica；中文 → 思源黑體 Noto Sans TC
+     （瀏覽器會先用 Helvetica，Helvetica 沒有的中文字才換成 Noto Sans TC） */
+  --font: Helvetica, "Noto Sans TC", sans-serif;
+
+  /* 畫布是 1920px 寬，style guide 的字級直接用會偏小，
+     所以全部乘上 --text-scale。想要完全照 style guide 的數字就改成 1 */
+  --text-scale: 1.75;
+
+  /* 中文字級 */
+  --zh-h1: calc(40px * var(--text-scale));
+  --zh-h2: calc(24px * var(--text-scale));
+  --zh-h3: calc(22px * var(--text-scale));
+  --zh-p: calc(20px * var(--text-scale));
+
+  /* 英文字級 */
+  --en-h1: calc(60px * var(--text-scale));
+  --en-h2: calc(54px * var(--text-scale));
+  --en-h3: calc(36px * var(--text-scale));
+  --en-p: calc(20px * var(--text-scale));
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html,
+body {
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  background: var(--black);
+  color: var(--white);
+  font-family: var(--font);
+}
+
+/* 預設用中文字級；英文內容加上 class="en" 就會換成英文字級 */
+h1 {
+  font-size: var(--zh-h1);
+  font-weight: 700;
+}
+h2 {
+  font-size: var(--zh-h2);
+  font-weight: 700;
+}
+h3 {
+  font-size: var(--zh-h3);
+  font-weight: 700;
+}
+p,
+li {
+  font-size: var(--zh-p);
+  font-weight: 700;
+}
+h1.en {
+  font-size: var(--en-h1);
+}
+h2.en {
+  font-size: var(--en-h2);
+}
+h3.en {
+  font-size: var(--en-h3);
+}
+p.en {
+  font-size: var(--en-p);
+}
+
+/* ---------- 畫布 ---------- */
+#stage {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 1920px;
+  height: 1080px;
+  overflow: hidden;
+  /* --stage-scale 由 js/main.js 依視窗大小計算 */
+  transform: translate(-50%, -50%) scale(var(--stage-scale, 1));
+}
+
+/* 每一頁共用的背景 */
+.bg {
+  position: absolute;
+  inset: 0;
+  background: url("../assets/images/bg.jpg") center / cover no-repeat;
+}
+
+/* ---------- 畫面切換 ---------- */
+.screen {
+  position: absolute;
+  inset: 0;
+  display: none;
+}
+.screen.active {
+  display: block;
+  animation: screen-in 0.4s ease-out;
+}
+@keyframes screen-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+/* 每頁左上角的標題 */
+.screen-title {
+  position: absolute;
+  top: 80px;
+  left: 138px;
+}
+
+/* ---------- 下方提示字（按空白鍵 ...） ---------- */
+.hint {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 90px;
+  text-align: center;
+  font-size: var(--zh-p);
+  letter-spacing: 0.05em;
+}
+.blink {
+  animation: blink 1.2s steps(1) infinite;
+}
+@keyframes blink {
+  0%,
+  60% {
+    opacity: 1;
+  }
+  61%,
+  100% {
+    opacity: 0;
+  }
+}
+.hidden {
+  visibility: hidden;
+}
+
+/* ---------- 鍵盤按鍵圖示 ---------- */
+.key {
+  display: inline-block;
+  min-width: 1.6em;
+  padding: 0.1em 0.4em;
+  border: 2px solid var(--white);
+  border-radius: 8px;
+  text-align: center;
+  font-weight: 700;
+}
+
+/* ---------- 玩家標籤 P1 / P2 ---------- */
+.player-tag {
+  display: inline-block;
+  padding: 4px 18px;
+  border-radius: 999px;
+  font-size: var(--en-p);
+  font-weight: 700;
+  color: var(--black);
+}
+.p1 .player-tag {
+  background: var(--grad-cool);
+}
+.p2 .player-tag {
+  background: var(--grad-warm);
+}
+
+/* ---------- 3D 小人的 canvas（建模、對戰、結算共用） ----------
+   canvas 內部解析度很低（lowpoly.js 的 LOOK），這裡放大顯示並保持一格一格的顆粒感 */
+.dancer {
+  display: block;
+  width: 300px;
+  height: 400px;
+  image-rendering: pixelated;
+}

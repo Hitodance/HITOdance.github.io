@@ -1,0 +1,1 @@
+音樂檔（mp3）放這個資料夾，然後到 js/data.js 的 SONGS 填上路徑，例如 src: "assets/audio/song-1.mp3"

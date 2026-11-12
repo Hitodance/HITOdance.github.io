@@ -1,0 +1,360 @@
+/* =========================================================
+   screens.css — 每個畫面各自的版面
+   畫布固定 1920×1080，所以位置都直接寫 px
+   ========================================================= */
+
+/* ============ 0.0 首頁 ============ */
+.home-deco {              /* AI 檔「素材」圖層，整張疊上去 */
+  position: absolute;
+  inset: 0;
+  width: 1920px;
+  height: 1080px;
+}
+/* 最上面的桃粉色跑馬燈：marquee.png 是一小段文字，橫向重複鋪滿後一直往左移動 */
+.home-marquee {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 1920px;
+  height: 58px;
+  background: url("../assets/images/marquee.png") repeat-x;
+  background-size: 381px 58px;                   /* 一段文字的寬度是 381px */
+  animation: marquee 6s linear infinite;         /* 秒數越小跑越快 */
+}
+@keyframes marquee {
+  from { background-position-x: 0; }
+  to   { background-position-x: -381px; }        /* 剛好移動一段，所以接起來看不出斷點；改成 381px 就變往右跑 */
+}
+.home-title {             /* AI 檔「字」圖層，位置跟 AI 檔一樣 */
+  position: absolute;
+  left: 294px;
+  top: 147px;
+  width: 1331px;
+  animation: title-float 3s ease-in-out infinite alternate;
+}
+@keyframes title-float {
+  from { transform: translateY(0); }
+  to   { transform: translateY(-14px); }
+}
+.home-dict-hint {
+  position: absolute;
+  right: 80px;
+  bottom: 90px;
+  font-size: var(--zh-p);
+}
+#screen-home .hint { bottom: 150px; font-size: var(--zh-h2); font-weight: 700; }
+
+/* ============ 0.1 死語詞典 ============ */
+.dict-window {
+  position: absolute;
+  left: 138px;
+  right: 138px;
+  top: 220px;
+  bottom: 260px;   /* 高度剛好放 4 個詞條 */
+  overflow: hidden;       /* 用上下鍵控制，不顯示捲軸 */
+}
+.dict-list { transition: transform 0.3s ease-out; }
+.dict-item {
+  height: 150px;          /* 改高度的話 dictionary.js 的 ITEM_HEIGHT 也要改 */
+  display: flex;
+  align-items: center;
+  gap: 40px;
+  padding: 0 40px;
+  border-bottom: 2px solid rgba(255, 255, 255, 0.25);
+}
+.dict-word {
+  flex: 0 0 360px;
+  font-size: var(--zh-h1);
+  font-weight: 700;
+  background: var(--grad-warm);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+.dict-meaning { flex: 1; }
+.dict-example { flex: 1; color: var(--gray); }
+
+/* ============ 1.0 引言 ============ */
+.intro-text {
+  position: absolute;
+  left: 260px;
+  right: 260px;
+  top: 300px;
+  line-height: 1.9;
+  white-space: pre-line;  /* data.js 裡的換行會照樣顯示 */
+}
+
+/* ============ 2.0 拍照 ============ */
+.player-frame {
+  position: absolute;
+  top: 210px;
+  width: 510px;
+  height: 680px;
+  border: 6px solid rgba(255, 255, 255, 0.3);
+  border-radius: 20px;
+  overflow: hidden;
+  background: rgba(0, 0, 0, 0.6);
+}
+.player-frame.p1 { left: 200px; }
+.player-frame.p2 { right: 200px; }
+.player-frame .player-tag { position: absolute; top: 16px; left: 16px; z-index: 2; }
+.player-frame video,
+.player-frame img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: none;
+}
+.player-frame video { transform: scaleX(-1); }       /* 鏡像，像照鏡子 */
+.player-frame.active video { display: block; }       /* 輪到這位玩家：顯示鏡頭 */
+.player-frame.done img { display: block; }           /* 拍完：顯示照片 */
+
+/* 輪到的玩家：白框一閃一閃 */
+.player-frame.active { animation: frame-blink 0.8s steps(1) infinite; }
+@keyframes frame-blink {
+  0%, 50%   { border-color: var(--white); box-shadow: 0 0 40px var(--white); }
+  51%, 100% { border-color: rgba(255, 255, 255, 0.3); box-shadow: none; }
+}
+.player-frame.done.p1 { border-color: var(--p1); }
+.player-frame.done.p2 { border-color: var(--p2); }
+
+.photo-countdown.small { top: 480px; font-size: var(--zh-h1); }   /* 顯示「建模中…」時用 */
+.photo-countdown {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 400px;
+  text-align: center;
+  font-size: 260px;       /* 倒數大數字：style guide 沒有這麼大的級數，是唯一的例外 */
+  font-weight: 700;
+  line-height: 1;
+}
+
+/* ============ 2.1 建模動畫 ============ */
+.model-stand {
+  position: absolute;
+  top: 170px;
+  width: 540px;
+  text-align: center;
+}
+.model-stand.p1 { left: 330px; }
+.model-stand.p2 { right: 330px; }
+.model-stand .dancer { width: 540px; height: 720px; }
+.model-stand .player-tag { position: relative; top: -45px; }
+
+/* ============ 3.0 / 4.0 舞台、音樂選擇（共用） ============ */
+.select-title {
+  position: absolute;
+  left: 138px;
+  top: 92px;
+  font-weight: 700;
+}
+
+/* 左邊：選項的圖片 */
+.select-preview {
+  position: absolute;
+  left: 138px;
+  top: 187px;
+  width: 728px;
+  height: 641px;
+  background: var(--gray) center / cover no-repeat;
+  display: flex;
+  align-items: flex-end;
+  padding: 30px;
+  color: var(--black);
+  font-size: var(--zh-h2);
+  font-weight: 700;
+}
+
+/* 右邊：上下輪轉的選項。每個選項的位置由 select.js 用 transform 控制 */
+.select-item {
+  position: absolute;
+  left: 993px;            /* 正中間（被選到）那一條的左邊位置 */
+  top: 451px;
+  width: 1000px;          /* 故意超出畫面右邊 */
+  height: 116px;
+  padding: 0 50px;
+  display: flex;
+  align-items: center;
+  gap: 30px;
+  background: var(--gray);
+  color: var(--black);
+  font-size: var(--zh-h2);
+  font-weight: 700;
+  transition: transform 0.25s ease-out, opacity 0.25s;
+}
+.select-item small { font-size: var(--zh-p); opacity: 0.7; }
+.select-item.selected {
+  background: var(--grad-warm);
+  box-shadow: 0 0 40px var(--pink);
+}
+
+/* ============ Loading ============ */
+.howto {
+  position: absolute;
+  top: 250px;
+  width: 620px;
+  text-align: center;
+}
+.howto.p1 { left: 250px; }
+.howto.p2 { right: 250px; }
+.howto p { margin-top: 30px; line-height: 1.6; }
+.howto .keys {
+  margin: 40px auto 0;
+  width: 330px;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 15px;
+}
+.key.wide {
+  min-width: 0;
+  width: 100px;
+  height: 100px;
+  line-height: 92px;
+  padding: 0;
+  font-size: var(--en-h3);
+}
+.key.up { margin: 0 115px; }       /* 讓上面那顆自己佔一排 */
+.howto.p1 .key { border-color: var(--p1); color: var(--p1); }
+.howto.p2 .key { border-color: var(--p2); color: var(--p2); }
+
+.loading-bar {
+  position: absolute;
+  left: 260px;
+  right: 260px;
+  bottom: 170px;
+  height: 28px;
+  border: 3px solid var(--white);
+  border-radius: 999px;
+  overflow: hidden;
+}
+.loading-fill {
+  width: 0%;
+  height: 100%;
+  background: linear-gradient(90deg, var(--green), var(--cyan), var(--pink), var(--orange));
+}
+.loading-text {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 90px;
+  text-align: center;
+  font-weight: 700;
+  letter-spacing: 0.15em;
+}
+
+/* ============ 5.0 對戰 ============ */
+.battle-top {
+  position: absolute;
+  top: 40px;
+  left: 80px;
+  right: 80px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.score { display: flex; align-items: center; gap: 24px; width: 520px; }
+.score.p2 { justify-content: flex-end; }
+.score-num { font-size: var(--en-h3); font-weight: 700; font-variant-numeric: tabular-nums; }
+.song-info { flex: 1; text-align: center; }
+.song-info p { font-size: var(--zh-p); margin-bottom: 12px; }
+.time-bar { height: 10px; background: rgba(255, 255, 255, 0.25); border-radius: 999px; overflow: hidden; }
+.time-fill { width: 0%; height: 100%; background: var(--grad-cool); }
+
+#screen-battle .dancer { position: absolute; bottom: 90px; width: 390px; height: 520px; }
+#screen-battle .dancer.p1 { left: 15px; }
+#screen-battle .dancer.p2 { right: 15px; }
+
+/* 軌道：箭頭之後會從下面往上（或上面往下）跑進判定區 */
+.lane {
+  position: absolute;
+  top: 190px;
+  bottom: 60px;
+  width: 520px;
+  background: rgba(0, 0, 0, 0.55);
+  border: 3px solid rgba(255, 255, 255, 0.3);
+  border-radius: 16px;
+}
+.lane.p1 { left: 410px; border-color: var(--p1); }
+.lane.p2 { right: 410px; border-color: var(--p2); }
+
+.receptors {
+  display: flex;
+  justify-content: space-around;
+  padding: 30px 20px;
+}
+.receptor {
+  width: 100px;
+  height: 100px;
+  line-height: 92px;
+  text-align: center;
+  font-size: var(--en-h3);
+  font-weight: 700;
+  border: 4px solid var(--white);
+  border-radius: 16px;
+  opacity: 0.6;
+  transition: transform 0.08s, background 0.08s;
+}
+/* 按下按鍵時 battle.js 會暫時加上 .hit */
+.receptor.hit { opacity: 1; transform: scale(1.2); }
+.lane.p1 .receptor.hit { background: var(--p1); color: var(--black); }
+.lane.p2 .receptor.hit { background: var(--p2); color: var(--black); }
+
+.combo {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 45%;
+  text-align: center;
+  font-size: var(--en-h3);
+  font-weight: 700;
+}
+
+.battle-countdown {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 320px;       /* 同上，倒數大數字 */
+  font-weight: 700;
+  text-shadow: 0 0 60px var(--pink);
+  pointer-events: none;
+}
+
+/* ============ 6.0 結算 ============ */
+.result-winner {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 80px;
+  text-align: center;
+  font-size: var(--zh-h1);
+  font-weight: 700;
+}
+.result-col {
+  position: absolute;
+  top: 230px;
+  width: 740px;
+  display: grid;
+  grid-template-columns: 330px 1fr;
+  column-gap: 20px;
+  align-items: start;
+}
+.result-col.p1 { left: 170px; }
+.result-col.p2 { right: 170px; }
+.result-col .dancer { grid-row: span 2; width: 330px; height: 440px; margin-top: -50px; }
+.result-score { font-size: var(--en-h2); font-weight: 700; line-height: 1; font-variant-numeric: tabular-nums; }
+.result-col.p1 .result-score { color: var(--p1); }
+.result-col.p2 .result-score { color: var(--p2); }
+.result-judge { list-style: none; margin-top: 24px; }
+.result-judge li {
+  display: flex;
+  justify-content: space-between;
+  padding: 8px 0;
+  font-size: var(--en-p);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.25);
+}

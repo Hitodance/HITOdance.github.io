@@ -1,0 +1,233 @@
+<!doctype html>
+<html lang="zh-Hant">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>要打去練舞室打</title>
+
+    <!-- 中文字體：思源黑體 Noto Sans TC（英文用 Helvetica，寫在 css/base.css） -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;700&display=swap"
+      rel="stylesheet"
+    />
+
+    <link rel="stylesheet" href="css/base.css" />
+    <!-- 顏色、字體、共用元件 -->
+    <link rel="stylesheet" href="css/screens.css" />
+    <!-- 每個畫面各自的版面 -->
+  </head>
+  <body>
+    <!--
+  #stage 是固定 1920×1080 的畫布（跟 AI 檔工作區域一樣大），
+  會自動等比例縮放塞滿視窗，所以裡面的東西都可以直接用 px 排版。
+  每個 <section class="screen"> 是一個畫面，同一時間只會顯示一個。
+-->
+    <div id="stage">
+      <!-- 每一頁共用的背景（AI 檔的「背景」+「地板」圖層） -->
+      <div class="bg"></div>
+
+      <!-- ============ 0.0 首頁 ============ -->
+      <section class="screen" id="screen-home">
+        <img class="home-deco" src="assets/images/deco.png" alt="" />
+        <div class="home-marquee"></div>
+        <!-- 最上面的桃粉色跑馬燈 -->
+        <img
+          class="home-title"
+          src="assets/images/title.png"
+          alt="要打去練舞室打"
+        />
+        <p class="home-dict-hint"><span class="key">D</span> 死語詞典</p>
+        <p class="hint blink">按空白鍵進遊戲</p>
+      </section>
+
+      <!-- ============ 0.1 死語詞典 ============ -->
+      <section class="screen" id="screen-dictionary">
+        <h1 class="screen-title">死語詞典</h1>
+        <div class="dict-window">
+          <!-- 詞條由 js/screens/dictionary.js 依照 js/data.js 的內容產生 -->
+          <div class="dict-list" id="dict-list"></div>
+        </div>
+        <p class="hint">▲▼ 滑動　ESC 回首頁</p>
+      </section>
+
+      <!-- ============ 1.0 引言 ============ -->
+      <section class="screen" id="screen-intro">
+        <h1 class="screen-title">引言</h1>
+        <p class="intro-text" id="intro-text"></p>
+        <p class="hint blink">按空白鍵繼續</p>
+      </section>
+
+      <!-- ============ 2.0 拍照 ============ -->
+      <section class="screen" id="screen-photo">
+        <h1 class="screen-title">拍照</h1>
+
+        <div class="player-frame p1" id="photo-frame-p1">
+          <span class="player-tag">P1</span>
+          <video id="photo-video-p1" autoplay playsinline muted></video>
+          <img id="photo-img-p1" alt="" />
+        </div>
+
+        <div class="photo-countdown" id="photo-countdown"></div>
+
+        <div class="player-frame p2" id="photo-frame-p2">
+          <span class="player-tag">P2</span>
+          <video id="photo-video-p2" autoplay playsinline muted></video>
+          <img id="photo-img-p2" alt="" />
+        </div>
+
+        <p class="hint blink" id="photo-hint">按空白鍵進入拍照倒數</p>
+      </section>
+
+      <!-- ============ 2.1 建模動畫 ============ -->
+      <section class="screen" id="screen-model">
+        <h1 class="screen-title">建模完成</h1>
+
+        <!-- 兩個低面數 3D 小人，畫在 canvas 上（js/lib/lowpoly.js） -->
+        <div class="model-stand p1">
+          <canvas class="dancer" id="model-canvas-p1"></canvas>
+          <span class="player-tag">P1</span>
+        </div>
+        <div class="model-stand p2">
+          <canvas class="dancer" id="model-canvas-p2"></canvas>
+          <span class="player-tag">P2</span>
+        </div>
+
+        <p class="hint blink" id="model-hint">按空白鍵進入下一步</p>
+      </section>
+
+      <!-- ============ 3.0 舞台選擇 ============ -->
+      <section class="screen select-screen" id="screen-stage">
+        <h2 class="select-title">舞台選擇</h2>
+        <div class="select-preview" id="stage-preview"></div>
+        <div class="select-wheel" id="stage-wheel"></div>
+        <p class="hint">▲▼ 選擇　空白鍵決定</p>
+      </section>
+
+      <!-- ============ 4.0 音樂選擇 ============ -->
+      <section class="screen select-screen" id="screen-music">
+        <h2 class="select-title">音樂選擇</h2>
+        <div class="select-preview" id="music-preview"></div>
+        <div class="select-wheel" id="music-wheel"></div>
+        <p class="hint">▲▼ 選擇　空白鍵決定</p>
+      </section>
+
+      <!-- ============ Loading ============ -->
+      <section class="screen" id="screen-loading">
+        <h1 class="screen-title">玩法說明</h1>
+
+        <div class="howto p1">
+          <span class="player-tag">P1</span>
+          <div class="keys">
+            <span class="key wide up">W</span>
+            <span class="key wide">A</span><span class="key wide">S</span
+            ><span class="key wide">D</span>
+          </div>
+          <p>箭頭落到判定線時<br />按下對應的 W A S D</p>
+        </div>
+
+        <div class="howto p2">
+          <span class="player-tag">P2</span>
+          <div class="keys">
+            <span class="key wide up">↑</span>
+            <span class="key wide">←</span><span class="key wide">↓</span
+            ><span class="key wide">→</span>
+          </div>
+          <p>箭頭落到判定線時<br />按下對應的方向鍵</p>
+        </div>
+
+        <div class="loading-bar">
+          <div class="loading-fill" id="loading-fill"></div>
+        </div>
+        <p class="loading-text">LOADING <span id="loading-percent">0</span>%</p>
+      </section>
+
+      <!-- ============ 5.0 對戰 ============ -->
+      <section class="screen" id="screen-battle">
+        <!-- 上方：分數與歌曲進度 -->
+        <div class="battle-top">
+          <div class="score p1">
+            <span class="player-tag">P1</span
+            ><span class="score-num" id="battle-score-p1">0</span>
+          </div>
+          <div class="song-info">
+            <p id="battle-song-name"></p>
+            <div class="time-bar">
+              <div class="time-fill" id="battle-time-fill"></div>
+            </div>
+          </div>
+          <div class="score p2">
+            <span class="score-num" id="battle-score-p2">0</span
+            ><span class="player-tag">P2</span>
+          </div>
+        </div>
+
+        <!-- 左右：跳舞的 3D 小人 -->
+        <canvas class="dancer p1" id="battle-dancer-p1"></canvas>
+        <canvas class="dancer p2" id="battle-dancer-p2"></canvas>
+
+        <!-- 中間：兩條軌道（譜面還沒編排，先只有判定區的四個箭頭） -->
+        <div class="lane p1" id="lane-p1">
+          <div class="receptors">
+            <span class="receptor" data-dir="left">←</span>
+            <span class="receptor" data-dir="down">↓</span>
+            <span class="receptor" data-dir="up">↑</span>
+            <span class="receptor" data-dir="right">→</span>
+          </div>
+          <p class="combo" id="battle-combo-p1"></p>
+        </div>
+        <div class="lane p2" id="lane-p2">
+          <div class="receptors">
+            <span class="receptor" data-dir="left">←</span>
+            <span class="receptor" data-dir="down">↓</span>
+            <span class="receptor" data-dir="up">↑</span>
+            <span class="receptor" data-dir="right">→</span>
+          </div>
+          <p class="combo" id="battle-combo-p2"></p>
+        </div>
+
+        <!-- 開場倒數 3 2 1 -->
+        <div class="battle-countdown" id="battle-countdown"></div>
+      </section>
+
+      <!-- ============ 6.0 結算 ============ -->
+      <section class="screen" id="screen-result">
+        <h1 class="screen-title">結算</h1>
+        <p class="result-winner" id="result-winner"></p>
+
+        <div class="result-col p1">
+          <canvas class="dancer" id="result-dancer-p1"></canvas>
+          <p class="result-score" id="result-score-p1">0</p>
+          <ul class="result-judge" id="result-judge-p1"></ul>
+        </div>
+        <div class="result-col p2">
+          <canvas class="dancer" id="result-dancer-p2"></canvas>
+          <p class="result-score" id="result-score-p2">0</p>
+          <ul class="result-judge" id="result-judge-p2"></ul>
+        </div>
+
+        <p class="hint blink">按空白鍵回到主畫面</p>
+      </section>
+    </div>
+
+    <!-- JS 載入順序很重要：資料 → 狀態 → 換頁系統 → 工具（lib）→ 各畫面 → 啟動 -->
+    <script src="js/data.js"></script>
+    <script src="js/state.js"></script>
+    <script src="js/router.js"></script>
+    <script src="js/lib/cutout.js"></script>
+    <!-- 自動去背、做貼圖 -->
+    <script src="js/lib/lowpoly.js"></script>
+    <!-- 低面數 3D 小人 -->
+    <script src="js/screens/home.js"></script>
+    <script src="js/screens/dictionary.js"></script>
+    <script src="js/screens/intro.js"></script>
+    <script src="js/screens/photo.js"></script>
+    <script src="js/screens/model.js"></script>
+    <script src="js/screens/select.js"></script>
+    <script src="js/screens/loading.js"></script>
+    <script src="js/screens/battle.js"></script>
+    <script src="js/screens/result.js"></script>
+    <script src="js/main.js"></script>
+  </body>
+</html>
