@@ -4,7 +4,16 @@
    2. 畫布 #stage 與背景
    3. 共用元件：提示字、按鍵圖示、玩家標籤、小人
    ========================================================= */
+/* 自訂字體 */
+@font-face {
+  font-family: "MoeLi";
+  src: url("../font/MoeLi.ttf") format("truetype");
+}
 
+/* 全站字體 */
+body {
+  font-family: "MoeLi", sans-serif;
+}
 :root {
   /* ---------- Color System ---------- */
   --pink: #ff00ff;
@@ -29,8 +38,9 @@
 
   /* ---------- Typography System ---------- */
   /* 只用兩種字體：英文、數字 → Helvetica；中文 → 思源黑體 Noto Sans TC
-     （瀏覽器會先用 Helvetica，Helvetica 沒有的中文字才換成 Noto Sans TC） */
-  --font: Helvetica, "Noto Sans TC", sans-serif;
+     （瀏覽器會先用 Helvetica，Helvetica 沒有的中文字才換成 Noto Sans TC）
+     */
+  --font: "MoeLi", sans-serif;
 
   /* 畫布是 1920px 寬，style guide 的字級直接用會偏小，
      所以全部乘上 --text-scale。想要完全照 style guide 的數字就改成 1 */
