@@ -115,6 +115,15 @@ p.en {
   background: url("../assets/images/bg.jpg") center / cover no-repeat;
 }
 
+/* 每一頁共用的地板（會動，js/lib/floor.js 畫的）。top = 地平線的位置 */
+.floor {
+  position: absolute;
+  left: 0;
+  top: 600px;
+  width: 1920px;
+  height: 480px;
+}
+
 /* ---------- 畫面切換 ---------- */
 .screen {
   position: absolute;

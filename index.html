@@ -25,8 +25,9 @@
   每個 <section class="screen"> 是一個畫面，同一時間只會顯示一個。
 -->
     <div id="stage">
-      <!-- 每一頁共用的背景（AI 檔的「背景」+「地板」圖層） -->
+      <!-- 每一頁共用的背景：bg 是 AI 檔的「背景」圖層（光暈），地板用程式畫在 canvas 上才能動（js/lib/floor.js） -->
       <div class="bg"></div>
+      <canvas class="floor" id="floor" width="1920" height="480"></canvas>
 
       <!-- ============ 0.0 首頁 ============ -->
       <section class="screen" id="screen-home">
@@ -219,6 +220,8 @@
     <!-- 自動去背、做貼圖 -->
     <script src="js/lib/lowpoly.js"></script>
     <!-- 低面數 3D 小人 -->
+    <script src="js/lib/floor.js"></script>
+    <!-- 會動的地板 -->
     <script src="js/screens/home.js"></script>
     <script src="js/screens/dictionary.js"></script>
     <script src="js/screens/intro.js"></script>

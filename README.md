@@ -43,9 +43,10 @@ js/
   main.js             啟動、畫布縮放
   lib/cutout.js       自動去背、偵測五官、把照片切成頭和身體的貼圖（眼睛放大改最上面的 FACE）
   lib/lowpoly.js      低面數 3D 小人（比例改最上面的 BODY，舞步改 DANCE_MOVES）
+  lib/floor.js        每一頁共用的地板，色塊會隨機閃爍（閃爍速度、顏色改最上面的 FLOOR）
   screens/            每個畫面一個檔案
 assets/
-  images/             bg.jpg（共用背景）、title.png（主視覺字）、deco.png（首頁裝飾）
+  images/             bg.jpg（共用背景的光暈，地板是程式畫的）、title.png（主視覺字）、deco.png（首頁裝飾）
   audio/              音樂檔放這裡
 ```
 
