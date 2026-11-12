@@ -50,7 +50,7 @@ body {
   --zh-h1: calc(40px * var(--text-scale));
   --zh-h2: calc(24px * var(--text-scale));
   --zh-h3: calc(22px * var(--text-scale));
-  --zh-p: calc(20px * var(--text-scale));
+  --zh-p: calc(24px * var(--text-scale));
 
   /* 英文字級 */
   --en-h1: calc(60px * var(--text-scale));

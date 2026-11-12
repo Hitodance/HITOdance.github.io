@@ -100,8 +100,8 @@
   position: absolute;
   left: 260px;
   right: 260px;
-  top: 300px;
-  line-height: 1.9;
+  top: 180px;
+  line-height: 1.2;
   white-space: pre-line; /* data.js 裡的換行會照樣顯示 */
 }
 
