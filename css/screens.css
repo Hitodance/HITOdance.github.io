@@ -112,7 +112,7 @@
   position: absolute;
   left: 0;
   right: 0;
-  top: 760px; /* 想往上往下搬就改這個 */
+  top: 700px; /* 想往上往下搬就改這個 */
   text-align: center;
   pointer-events: none;
 }
@@ -121,9 +121,9 @@
 }
 .intro-joy span {
   display: inline-block;
-  font-size: 96px; /* 想更大就改這個 */
-  font-weight: 700;
-  background: var(--grad-warm);
+  font-size: 180px; /* 想更大就改這個 */
+  font-weight: 500;
+  background: var(--green);
   -webkit-background-clip: text;
   background-clip: text;
   color: transparent;
