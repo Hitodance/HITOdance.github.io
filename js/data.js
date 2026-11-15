@@ -83,8 +83,9 @@ const SONGS = [
     artist: "謝金燕",
     image: "assets/images/song_sister.jpg",
     src: "assets/audio/song_sister_pre.mp3",
-    duration: 20,
-    bpm: 120,
+    duration: 17.38,
+    bpm: 133,
+    firstBeat: 0.07,
     previewStart: 0,
   },
   {
@@ -93,7 +94,8 @@ const SONGS = [
     image: "assets/images/song_young.JPG",
     src: "assets/audio/song_young_pre.mp3",
     duration: 20,
-    bpm: 120,
+    bpm: 127,
+    firstBeat: 0.14,
     previewStart: 0,
   },
   {

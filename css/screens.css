@@ -448,66 +448,188 @@
   right: 15px;
 }
 
-/* 軌道：箭頭之後會從下面往上（或上面往下）跑進判定區 */
+/* ============ 固定箭頭位置 ============ */
+
 .lane {
   position: absolute;
   top: 190px;
   bottom: 60px;
   width: 520px;
-  background: rgba(0, 0, 0, 0.55);
-  border: 3px solid rgba(255, 255, 255, 0.3);
-  border-radius: 16px;
+
+  --arrow-size: 100px;
+  --hit-y: 80px;
+  --arrow-color: var(--p1);
 }
+
 .lane.p1 {
   left: 410px;
-  border-color: var(--p1);
 }
+
 .lane.p2 {
   right: 410px;
-  border-color: var(--p2);
+  --arrow-color: var(--p2);
+}
+
+/* 固定箭頭與移動箭頭的容器 */
+
+.receptors,
+.notes {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
 }
 
 .receptors {
-  display: flex;
-  justify-content: space-around;
-  padding: 30px 20px;
-}
-.receptor {
-  width: 100px;
-  height: 100px;
-  line-height: 92px;
-  text-align: center;
-  font-size: var(--en-h3);
-  font-weight: 700;
-  border: 4px solid var(--white);
-  border-radius: 16px;
-  opacity: 0.6;
-  transition:
-    transform 0.08s,
-    background 0.08s;
-}
-/* 按下按鍵時 battle.js 會暫時加上 .hit */
-.receptor.hit {
-  opacity: 1;
-  transform: scale(1.2);
-}
-.lane.p1 .receptor.hit {
-  background: var(--p1);
-  color: var(--black);
-}
-.lane.p2 .receptor.hit {
-  background: var(--p2);
-  color: var(--black);
+  z-index: 2;
 }
 
+/* 固定箭頭與移動箭頭共用設定 */
+
+.receptor,
+.battle-note {
+  position: absolute;
+  left: var(--column);
+
+  width: var(--arrow-size);
+  height: var(--arrow-size);
+
+  transform: translate(-50%, -50%);
+
+  display: grid;
+  place-items: center;
+
+  font-size: var(--en-h3);
+  font-weight: 700;
+  line-height: 1;
+
+  background-size: contain;
+  background-position: center;
+  background-repeat: no-repeat;
+}
+
+/* 四個方向的固定軌道 */
+
+.lane [data-dir="left"] {
+  --column: 12.5%;
+}
+
+.lane [data-dir="down"] {
+  --column: 37.5%;
+}
+
+.lane [data-dir="up"] {
+  --column: 62.5%;
+}
+
+.lane [data-dir="right"] {
+  --column: 87.5%;
+}
+
+/* 固定箭頭 */
+
+.receptor {
+  top: var(--hit-y);
+  color: white;
+  opacity: 0.45;
+}
+
+/* 按下固定箭頭的效果 */
+
+.receptor.hit {
+  opacity: 1;
+  filter: brightness(1.5);
+  transform: translate(-50%, -50%) scale(1.1);
+}
+
+/* ============ 音符容器 ============ */
+
+.notes {
+  overflow: hidden;
+  z-index: 1;
+}
+
+/* ============ 移動中的箭頭 ============ */
+
+.battle-note {
+  color: var(--arrow-color);
+  text-shadow: 0 0 12px currentColor;
+}
+
+/* ============ PNG 箭頭圖片 ============ */
+
+/* 圖片做好後，再取消這一整段的註解
+
+.receptor,
+.battle-note {
+  font-size: 0;
+}
+
+.receptor {
+  opacity: 1;
+}
+
+.receptor[data-dir="left"] {
+  background-image: url("../assets/arrow/fixed/left.png");
+}
+
+.receptor[data-dir="down"] {
+  background-image: url("../assets/arrow/fixed/down.png");
+}
+
+.receptor[data-dir="up"] {
+  background-image: url("../assets/arrow/fixed/up.png");
+}
+
+.receptor[data-dir="right"] {
+  background-image: url("../assets/arrow/fixed/right.png");
+}
+
+.battle-note[data-dir="left"] {
+  background-image: url("../assets/arrow/note/left.png");
+}
+
+.battle-note[data-dir="down"] {
+  background-image: url("../assets/arrow/note/down.png");
+}
+
+.battle-note[data-dir="up"] {
+  background-image: url("../assets/arrow/note/up.png");
+}
+
+.battle-note[data-dir="right"] {
+  background-image: url("../assets/arrow/note/right.png");
+}
+
+*/
+
+/* ============ 判定文字 ============ */
+
+.battle-judge,
 .combo {
   position: absolute;
   left: 0;
   right: 0;
-  top: 45%;
+
   text-align: center;
-  font-size: var(--en-h3);
   font-weight: 700;
+
+  pointer-events: none;
+  z-index: 3;
+
+  text-shadow:
+    2px 2px 5px black,
+    -2px -2px 5px black;
+}
+
+.battle-judge {
+  top: 40%;
+  font-size: var(--en-h3);
+  color: var(--arrow-color);
+}
+
+.combo {
+  top: 50%;
+  font-size: var(--en-p);
 }
 
 .battle-countdown {

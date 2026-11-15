@@ -4,7 +4,7 @@
 
 const resultDancers = {
   p1: LowPoly.create(document.getElementById("result-dancer-p1"), "p1"),
-  p2: LowPoly.create(document.getElementById("result-dancer-p2"), "p2")
+  p2: LowPoly.create(document.getElementById("result-dancer-p2"), "p2"),
 };
 
 function showResult(player) {
@@ -14,9 +14,10 @@ function showResult(player) {
 
   const rows = [
     ["PERFECT", result.perfect],
+    ["GREAT", result.great],
     ["GOOD", result.good],
     ["MISS", result.miss],
-    ["MAX COMBO", result.maxCombo]
+    ["MAX COMBO", result.maxCombo],
   ];
   const list = document.getElementById("result-judge-" + player);
   list.textContent = "";
@@ -64,5 +65,5 @@ registerScreen("result", {
     if (e.code === "Space") {
       goTo("home");
     }
-  }
+  },
 });

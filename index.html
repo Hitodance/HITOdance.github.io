@@ -174,22 +174,44 @@
         <canvas class="dancer p2" id="battle-dancer-p2"></canvas>
 
         <!-- 中間：兩條軌道（譜面還沒編排，先只有判定區的四個箭頭） -->
+
+        <!-- ============ P1 音遊軌道 ============ -->
         <div class="lane p1" id="lane-p1">
+          <!-- 固定箭頭 -->
           <div class="receptors">
             <span class="receptor" data-dir="left">←</span>
             <span class="receptor" data-dir="down">↓</span>
             <span class="receptor" data-dir="up">↑</span>
             <span class="receptor" data-dir="right">→</span>
           </div>
+
+          <!-- 移動中的箭頭 -->
+          <div class="notes" id="battle-notes-p1"></div>
+
+          <!-- 判定文字 -->
+          <p class="battle-judge" id="battle-judge-p1"></p>
+
+          <!-- 連擊 -->
           <p class="combo" id="battle-combo-p1"></p>
         </div>
+
+        <!-- ============ P2 音遊軌道 ============ -->
         <div class="lane p2" id="lane-p2">
+          <!-- 固定箭頭 -->
           <div class="receptors">
             <span class="receptor" data-dir="left">←</span>
             <span class="receptor" data-dir="down">↓</span>
             <span class="receptor" data-dir="up">↑</span>
             <span class="receptor" data-dir="right">→</span>
           </div>
+
+          <!-- 移動中的箭頭 -->
+          <div class="notes" id="battle-notes-p2"></div>
+
+          <!-- 判定文字 -->
+          <p class="battle-judge" id="battle-judge-p2"></p>
+
+          <!-- 連擊 -->
           <p class="combo" id="battle-combo-p2"></p>
         </div>
 
