@@ -72,25 +72,29 @@ const STAGES = [
 ];
 
 // ---------- 4.0 音樂 ----------
+// image：封面圖路徑，要從 assets 開始寫，例如 "assets/images/song_sister.jpg"；留空會顯示灰色方塊
 // src：音樂檔路徑，例如 "assets/audio/song-1.mp3"；留空就不會播音樂
 // duration：這首歌要玩幾秒（之後有音樂檔可以改成跟著音樂長度）
 // bpm：這首歌的速度（每分鐘幾拍），小人會照這個速度跳舞
+// previewStart：在音樂選擇頁試聽時，從第幾秒開始播（想讓人聽到副歌就填副歌的秒數）
 const SONGS = [
   {
-    name: "歌曲一",
-    artist: "歌手",
-    image: "",
-    src: "",
+    name: "姐姐",
+    artist: "謝金燕",
+    image: "assets/images/song_sister.jpg",
+    src: "assets/audio/song_sister_pre.mp3",
     duration: 20,
     bpm: 120,
+    previewStart: 0,
   },
   {
-    name: "歌曲二",
-    artist: "歌手",
-    image: "",
-    src: "",
+    name: "我有我的young",
+    artist: "飛輪海",
+    image: "assets/images/song_young.JPG",
+    src: "assets/audio/song_young_pre.mp3",
     duration: 20,
     bpm: 120,
+    previewStart: 0,
   },
   {
     name: "歌曲三",
@@ -99,6 +103,7 @@ const SONGS = [
     src: "",
     duration: 20,
     bpm: 120,
+    previewStart: 0,
   },
   {
     name: "歌曲四",
@@ -107,6 +112,7 @@ const SONGS = [
     src: "",
     duration: 20,
     bpm: 120,
+    previewStart: 0,
   },
   {
     name: "歌曲五",
@@ -115,6 +121,7 @@ const SONGS = [
     src: "",
     duration: 20,
     bpm: 120,
+    previewStart: 0,
   },
   {
     name: "歌曲六",
@@ -123,5 +130,6 @@ const SONGS = [
     src: "",
     duration: 20,
     bpm: 120,
+    previewStart: 0,
   },
 ];
