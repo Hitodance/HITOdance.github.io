@@ -105,6 +105,62 @@
   white-space: pre-line; /* data.js 裡的換行會照樣顯示 */
 }
 
+/* 引言字跑完後出現的「歡樂一百點」，會在下方晃來晃去
+   出現時機在 js/screens/intro.js（加上 .show） */
+.intro-joy {
+  display: none; /* intro.js 會換成 .show */
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 760px; /* 想往上往下搬就改這個 */
+  text-align: center;
+  pointer-events: none;
+}
+.intro-joy.show {
+  display: block;
+}
+.intro-joy span {
+  display: inline-block;
+  font-size: 96px; /* 想更大就改這個 */
+  font-weight: 700;
+  background: var(--grad-warm);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  /* 先彈出來（joy-pop），彈完開始一直晃（joy-wander，7 秒一圈，想晃快一點就改小） */
+  animation:
+    joy-pop 0.5s cubic-bezier(0.2, 1.7, 0.4, 1) both,
+    joy-wander 7s ease-in-out 0.5s infinite;
+}
+@keyframes joy-pop {
+  from {
+    transform: scale(0.2) rotate(-18deg);
+    opacity: 0;
+  }
+  to {
+    transform: scale(1) rotate(-4deg);
+    opacity: 1;
+  }
+}
+/* 晃的路線：改下面的數字就能改晃的範圍（px 越大晃越遠、deg 越大轉越多） */
+@keyframes joy-wander {
+  0% {
+    transform: translate(0, 0) rotate(-4deg) scale(1);
+  }
+  25% {
+    transform: translate(90px, -28px) rotate(5deg) scale(1.06);
+  }
+  50% {
+    transform: translate(10px, -48px) rotate(-6deg) scale(1);
+  }
+  75% {
+    transform: translate(-85px, -20px) rotate(4deg) scale(1.05);
+  }
+  100% {
+    transform: translate(0, 0) rotate(-4deg) scale(1);
+  }
+}
+
 /* ============ 2.0 拍照 ============ */
 .player-frame {
   position: absolute;
