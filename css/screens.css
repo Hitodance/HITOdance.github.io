@@ -440,6 +440,9 @@
   position: absolute;
   visibility: hidden;
   background: center / 100% 100% no-repeat;
+  /* --size 由 select.js 更新：沒被選到的框會縮小（倍率是 select.js 的 OPTION.smallScale） */
+  transform: scale(var(--size, 1));
+  transform-origin: var(--cx) var(--cy);
 }
 .select-item[data-mode="big"] .opt-art.big,
 .select-item[data-mode="small"] .opt-art.small {

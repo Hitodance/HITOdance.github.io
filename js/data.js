@@ -63,12 +63,8 @@ const INTRO_TEXT = `廣義來說死語是指過時的流行語、網路用語。
 // ---------- 3.0 舞台 ----------
 // image：舞台圖片的路徑，例如 "assets/images/stage-1.jpg"；先留空會顯示灰色方塊
 const STAGES = [
-  { name: "練舞室", image: "" },
-  { name: "舞台二", image: "" },
-  { name: "舞台三", image: "" },
-  { name: "舞台四", image: "" },
-  { name: "舞台五", image: "" },
-  { name: "舞台六", image: "" },
+  { name: "電子花車", image: "" },
+  { name: "復古舞廳", image: "" },
 ];
 
 // ---------- 4.0 音樂 ----------
@@ -96,42 +92,6 @@ const SONGS = [
     duration: 20,
     bpm: 127,
     firstBeat: 0.14,
-    previewStart: 0,
-  },
-  {
-    name: "歌曲三",
-    artist: "歌手",
-    image: "",
-    src: "",
-    duration: 20,
-    bpm: 120,
-    previewStart: 0,
-  },
-  {
-    name: "歌曲四",
-    artist: "歌手",
-    image: "",
-    src: "",
-    duration: 20,
-    bpm: 120,
-    previewStart: 0,
-  },
-  {
-    name: "歌曲五",
-    artist: "歌手",
-    image: "",
-    src: "",
-    duration: 20,
-    bpm: 120,
-    previewStart: 0,
-  },
-  {
-    name: "歌曲六",
-    artist: "歌手",
-    image: "",
-    src: "",
-    duration: 20,
-    bpm: 120,
     previewStart: 0,
   },
 ];
