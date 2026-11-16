@@ -473,14 +473,7 @@
   -webkit-mask: center / 100% 100% no-repeat;
   mask: center / 100% 100% no-repeat;
 }
-.opt-art.big .opt-rays {
-  -webkit-mask-image: url("../assets/images/select/option-big-mask.png");
-  mask-image: url("../assets/images/select/option-big-mask.png");
-}
-.opt-art.small .opt-rays {
-  -webkit-mask-image: url("../assets/images/select/option-mask.png");
-  mask-image: url("../assets/images/select/option-mask.png");
-}
+/* 遮罩圖（大框、小框各一張）寫在 css/select-masks.css */
 .opt-disc {
   position: absolute;
   left: calc(var(--cx) - 345px);

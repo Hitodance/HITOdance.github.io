@@ -23,7 +23,11 @@ const OPTION = {
   moveMs: 340,          // 上下滑動要多久
   openMs: 480,          // 展開（方框 → 十字、蓮花開花）要多久
   closeMs: 280,         // 收起來要多久
-  spinSpeed: 0.16,      // 條紋旋轉的速度（每秒轉幾個弧度，0 = 不轉，負的 = 反方向）
+  // 條紋的動畫（照螢幕錄影量出來的）：
+  //   平常順時針慢慢轉；每次切換選項，會先猛轉一下，再在 spinBoostMs 內慢慢減速回平常的速度
+  spinSpeed: 0.148,     // 平常的轉速（每秒轉幾個弧度，0.148 ≈ 每秒 8.5 度；0 = 不轉，負的 = 反方向）
+  spinBoost: 0.87,      // 每次切換時多轉多少（弧度，0.87 ≈ 50 度；0 = 切換時不加速）
+  spinBoostMs: 1000,    // 加速之後，花多久減速回平常的速度
   rays: 44,             // 條紋有幾道（AI 檔是 44 道）
 
   line: "#16e05c",      // 變形途中，霓虹線的顏色
@@ -555,10 +559,28 @@ function createSelectScreen(options) {
   wheel.style.setProperty("--rays", "url(" + raysDisc(false).toDataURL() + ")");
   wheel.style.setProperty("--dim", OPTION.dim);
 
+  // ---- 條紋現在轉到幾度 ----
+  // 平常的慢轉 + 每次切換時多轉的那一段（一開始最快，越來越慢，最後接回平常的速度）
+  let boostDone = 0;            // 之前幾次切換已經轉完的角度
+  let boostStart = -Infinity;   // 最近一次切換的時間
+  function boostNow(now) {
+    const p = Math.min(1, Math.max(0, (now - boostStart) / OPTION.spinBoostMs));
+    return OPTION.spinBoost * (1 - Math.pow(1 - p, 3));
+  }
+  function stripeAngle(now) {
+    return now / 1000 * OPTION.spinSpeed + boostDone + boostNow(now);
+  }
+  // 切換選項時呼叫：上一次還沒轉完的部分先記下來，再重新開始加速（連按也會一直順順地接下去）
+  function spinBoost() {
+    const now = performance.now();
+    boostDone += boostNow(now);
+    boostStart = now;
+  }
+
   let frameId = 0;
   let canvasDirty = false;      // canvas 上一格有沒有畫東西（有的話這一格要先擦掉）
   function tick(now) {
-    const angle = now / 1000 * OPTION.spinSpeed;
+    const angle = stripeAngle(now);
     wheel.style.setProperty("--angle", angle.toFixed(4) + "rad");   // 條紋現在轉到幾度
     const ready = artReady(OPTION_ART.big) && artReady(OPTION_ART.small);
 
@@ -666,6 +688,7 @@ function createSelectScreen(options) {
 
   function move(step) {
     selected = (selected + step + items.length) % items.length;
+    spinBoost();          // 條紋猛轉一下
     render();
   }
 
