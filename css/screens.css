@@ -263,22 +263,96 @@
   top: -45px;
 }
 
-/* ============ 3.0 / 4.0 舞台、音樂選擇（共用） ============ */
-.select-title {
-  position: absolute;
-  left: 138px;
-  top: 92px;
-  font-weight: 700;
+/* ============ 3.0 / 4.0 舞台、音樂選擇（共用） ============
+   圖都在 assets/images/select/，是從 AI 檔切出來的，位置也照 AI 檔。
+   動畫怎麼觸發在 js/screens/select.js */
+
+/* 「▲▼ 選擇　空白鍵決定」往下移一點，才不會壓到說明框 */
+.select-screen .hint {
+  bottom: 34px;
 }
 
-/* 左邊：選項的圖片 */
+/* ---------- 最上面的跑馬燈（文字就是 index.html 裡的標題） ---------- */
+.select-title {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 22px;
+  height: 58px;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  border-top: 1.5px solid var(--pink);
+  border-bottom: 1.5px solid var(--pink);
+  color: var(--pink);
+  font-size: 26px;
+  font-weight: 700;
+  white-space: nowrap;
+}
+.select-marquee {
+  display: inline-flex;
+  animation: select-marquee 24s linear infinite; /* 秒數越小跑越快 */
+}
+.select-marquee span {
+  padding: 0 10px;
+  letter-spacing: 0.12em;
+}
+@keyframes select-marquee {
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+/* ---------- 左邊：霓虹外框 + 圖片 ---------- */
+.select-frame {
+  position: absolute;
+  left: 54px;
+  top: 162px;
+  width: 866px;
+  height: 652px;
+  background: url("../assets/images/select/frame.png") center / 100% 100%
+    no-repeat;
+}
+/* 換選項的時候外框亮一下 */
+.select-frame.flash {
+  animation: select-frame-flash 0.55s ease-out;
+}
+@keyframes select-frame-flash {
+  0% {
+    filter: brightness(1.9) drop-shadow(0 0 34px var(--pink));
+  }
+  100% {
+    filter: brightness(1) drop-shadow(0 0 0 transparent);
+  }
+}
+/* 外框裡面放圖片的範圍 */
 .select-preview {
   position: absolute;
-  left: 138px;
-  top: 187px;
-  width: 728px;
-  height: 641px;
-  background: var(--gray) center / cover no-repeat;
+  left: 68px;
+  top: 58px;
+  width: 730px;
+  height: 532px;
+  overflow: hidden;
+  background: var(--black);
+}
+/* 圖片有兩層，換選項時新的那層淡入、舊的淡出 */
+.select-photo {
+  position: absolute;
+  inset: 0;
+  background: center / cover no-repeat;
+  opacity: 0;
+  filter: blur(10px);
+  transition:
+    opacity 0.4s,
+    filter 0.4s;
+}
+.select-photo.show {
+  opacity: 1;
+  filter: none;
+}
+/* 還沒有圖片的時候：灰底 + 名字 */
+.select-photo.empty {
+  background: var(--gray);
   display: flex;
   align-items: flex-end;
   padding: 30px;
@@ -287,32 +361,166 @@
   font-weight: 700;
 }
 
-/* 右邊：上下輪轉的選項。每個選項的位置由 select.js 用 transform 控制 */
-.select-item {
+/* ---------- 圖片下方的文字說明框 ----------
+   由左尖角、中間、右尖角三張圖組成，所以寬度變化時兩邊的尖角不會變形。
+   換選項時先縮成中間一小塊（.closed），換好字再張開 */
+.select-desc {
   position: absolute;
-  left: 993px; /* 正中間（被選到）那一條的左邊位置 */
-  top: 451px;
-  width: 1000px; /* 故意超出畫面右邊 */
-  height: 116px;
-  padding: 0 50px;
+  left: 487px; /* 框的正中間 */
+  top: 838px;
+  width: 910px;
+  height: 109px;
+  transform: translateX(-50%);
+  display: flex;
+  transition: width 0.26s cubic-bezier(0.5, 0, 0.3, 1);
+}
+.select-desc::before,
+.select-desc::after {
+  content: "";
+  flex: 0 0 38px;
+  background: center / 100% 100% no-repeat;
+}
+.select-desc::before {
+  background-image: url("../assets/images/select/desc-left.png");
+}
+.select-desc::after {
+  background-image: url("../assets/images/select/desc-right.png");
+}
+.select-desc p {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
   display: flex;
   align-items: center;
-  gap: 30px;
-  background: var(--gray);
-  color: var(--black);
-  font-size: var(--zh-h2);
+  background: url("../assets/images/select/desc-mid.png") center / 100% 100%
+    no-repeat;
+  font-size: 28px;
+  font-weight: 400;
+  line-height: 1.45;
+  color: var(--white);
+  transition: color 0.2s 0.2s; /* 框張開之後字才浮出來 */
+}
+.select-desc p span {
+  flex: none;
+  width: 794px; /* 固定寬度，框在縮放的時候字才不會跟著重新換行 */
+  margin-left: 20px;
+  white-space: pre-line;
+}
+.select-desc.closed {
+  width: 120px;
+}
+.select-desc.closed p {
+  color: transparent;
+  transition: color 0.06s;
+}
+
+/* ---------- 右邊：上下輪轉的選項 ----------
+   框（方框、十字、蓮花、條紋）是 select.js 用程式畫在 canvas 上的，
+   這裡只管疊在框上面的文字。位置和 --open（展開了多少，0 ~ 1）都由 select.js 每一格更新 */
+.select-canvas {
+  position: absolute;
+  left: 900px;
+  top: 0;
+  width: 1020px;
+  height: 1080px;
+  pointer-events: none;
+}
+.select-item {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 0;
+  height: 0;
+  color: var(--white);
+  --open: 0;
+}
+/* 停著不動時顯示的 AI 原圖。select.js 會在 .select-item 上標 data-mode：
+   big = 被選到（大框）、small = 沒被選到（小框）、morph = 變形途中（原圖先藏起來，改由 canvas 畫） */
+.opt-art {
+  position: absolute;
+  visibility: hidden;
+  background: center / 100% 100% no-repeat;
+}
+.select-item[data-mode="big"] .opt-art.big,
+.select-item[data-mode="small"] .opt-art.small {
+  visibility: visible;
+}
+/* left / top 是把圖往左上移，讓「框的正中心」對到選項的位置 */
+.opt-art.big {
+  --cx: 418px;
+  --cy: 233px;
+  left: -418px;
+  top: -233px;
+  width: 834px;
+  height: 470px;
+  background-image: url("../assets/images/select/option-big-lines.png");
+}
+.opt-art.small {
+  --cx: 311px;
+  --cy: 126px;
+  left: -311px;
+  top: -126px;
+  width: 622px;
+  height: 252px;
+  background-image: url("../assets/images/select/option-lines.png");
+  filter: brightness(var(--dim, 0.6)); /* 沒被選到的暗一點 */
+}
+/* 條紋：外面這層用遮罩圖切成框內的形狀，裡面的圓盤一直轉（角度 --angle 由 select.js 更新） */
+.opt-rays {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  -webkit-mask: center / 100% 100% no-repeat;
+  mask: center / 100% 100% no-repeat;
+}
+.opt-art.big .opt-rays {
+  -webkit-mask-image: url("../assets/images/select/option-big-mask.png");
+  mask-image: url("../assets/images/select/option-big-mask.png");
+}
+.opt-art.small .opt-rays {
+  -webkit-mask-image: url("../assets/images/select/option-mask.png");
+  mask-image: url("../assets/images/select/option-mask.png");
+}
+.opt-disc {
+  position: absolute;
+  left: calc(var(--cx) - 345px);
+  top: calc(var(--cy) - 345px);
+  width: 690px;
+  height: 690px;
+  background: var(--rays) center / 100% 100% no-repeat;
+  transform: rotate(var(--angle, 0rad));
+  will-change: transform;
+}
+
+/* 名字：沒被選到時比較小、比較暗；被選到時放大，並往上讓一點位置給下面的小字 */
+.select-item-name {
+  position: absolute;
+  left: 0;
+  top: 0;
+  font-size: var(--zh-h1);
   font-weight: 700;
-  transition:
-    transform 0.25s ease-out,
-    opacity 0.25s;
+  line-height: 1;
+  white-space: nowrap;
+  opacity: calc(0.7 + 0.3 * var(--open));
+  transform: translate(-50%, -50%)
+    translateY(calc(var(--open) * var(--sub-shift, 0px)))
+    scale(calc(0.62 + 0.38 * var(--open)));
 }
-.select-item small {
-  font-size: var(--zh-p);
-  opacity: 0.7;
+/* 有小字的選項，名字才需要往上讓 */
+.select-item:has(.select-item-sub:not(:empty)) {
+  --sub-shift: -16px;
 }
-.select-item.selected {
-  background: var(--grad-warm);
-  box-shadow: 0 0 40px var(--pink);
+/* 名字下面的小字（歌手、年份之類），展開到一半之後才浮出來 */
+.select-item-sub {
+  position: absolute;
+  left: 0;
+  top: 30px;
+  font-size: 28px;
+  line-height: 1.3;
+  text-align: center;
+  white-space: pre;
+  opacity: clamp(0, calc(var(--open) * 2 - 1), 1);
+  transform: translateX(-50%);
 }
 
 /* ============ Loading ============ */
@@ -537,7 +745,9 @@
 
 .receptor.hit {
   opacity: 1;
-  filter: brightness(1.5);
+  /* 按下去的時候，白色線框發出那個方向的顏色的光 */
+  filter: drop-shadow(0 0 5px var(--white))
+    drop-shadow(0 0 16px var(--dir-color));
   transform: translate(-50%, -50%) scale(1.1);
 }
 
@@ -553,15 +763,15 @@
 .battle-note {
   color: var(--arrow-color);
   text-shadow: 0 0 12px currentColor;
+  filter: drop-shadow(0 0 8px var(--dir-color));
 }
 
-/* ============ PNG 箭頭圖片 ============ */
-
-/* 圖片做好後，再取消這一整段的註解
+/* ============ PNG 箭頭圖片 ============
+   圖在 assets/arrow/：fixed = 上方定位用的白色線框，note = 往上跑的彩色箭頭 */
 
 .receptor,
 .battle-note {
-  font-size: 0;
+  font-size: 0; /* 把原本的文字箭頭藏起來，只顯示圖片 */
 }
 
 .receptor {
@@ -584,23 +794,114 @@
   background-image: url("../assets/arrow/fixed/right.png");
 }
 
-.battle-note[data-dir="left"] {
+.battle-note[data-dir="left"],
+.hit-burst[data-dir="left"] {
   background-image: url("../assets/arrow/note/left.png");
 }
 
-.battle-note[data-dir="down"] {
+.battle-note[data-dir="down"],
+.hit-burst[data-dir="down"] {
   background-image: url("../assets/arrow/note/down.png");
 }
 
-.battle-note[data-dir="up"] {
+.battle-note[data-dir="up"],
+.hit-burst[data-dir="up"] {
   background-image: url("../assets/arrow/note/up.png");
 }
 
-.battle-note[data-dir="right"] {
+.battle-note[data-dir="right"],
+.hit-burst[data-dir="right"] {
   background-image: url("../assets/arrow/note/right.png");
 }
 
-*/
+/* 每個方向的代表色（跟箭頭圖片的顏色一樣），發光特效會用到 */
+
+.lane [data-dir="left"] {
+  --dir-color: var(--pink);
+}
+
+.lane [data-dir="down"] {
+  --dir-color: var(--cyan);
+}
+
+.lane [data-dir="up"] {
+  --dir-color: var(--orange);
+}
+
+.lane [data-dir="right"] {
+  --dir-color: var(--green);
+}
+
+/* ============ 打中箭頭的特效 ============
+   按對的時候 battle.js 會在定位箭頭的位置放一個 .hit-burst：
+   彩色箭頭放大淡出 + 一圈光環往外擴散。PERFECT 會更大、更亮 */
+
+.hit-burst {
+  position: absolute;
+  left: var(--column);
+  top: var(--hit-y);
+  width: var(--arrow-size);
+  height: var(--arrow-size);
+  transform: translate(-50%, -50%);
+  background: center / contain no-repeat;
+  filter: drop-shadow(0 0 16px var(--dir-color));
+  animation: hit-arrow 0.45s ease-out forwards;
+}
+
+.hit-burst::after {
+  content: "";
+  position: absolute;
+  inset: -12%;
+  border-radius: 50%;
+  border: 6px solid var(--dir-color);
+  box-shadow:
+    0 0 28px var(--dir-color),
+    inset 0 0 28px var(--dir-color);
+  animation: hit-ring 0.45s ease-out forwards;
+}
+
+.hit-burst.perfect {
+  filter: drop-shadow(0 0 10px var(--white))
+    drop-shadow(0 0 26px var(--dir-color));
+  animation-name: hit-arrow-perfect;
+}
+
+.hit-burst.perfect::after {
+  border-color: var(--white);
+}
+
+@keyframes hit-arrow {
+  from {
+    transform: translate(-50%, -50%) scale(1);
+    opacity: 1;
+  }
+  to {
+    transform: translate(-50%, -50%) scale(1.8);
+    opacity: 0;
+  }
+}
+
+@keyframes hit-arrow-perfect {
+  from {
+    transform: translate(-50%, -50%) scale(1.1);
+    opacity: 1;
+  }
+  to {
+    transform: translate(-50%, -50%) scale(2.4);
+    opacity: 0;
+  }
+}
+
+@keyframes hit-ring {
+  from {
+    transform: scale(0.5);
+    opacity: 1;
+  }
+  to {
+    transform: scale(1.5);
+    opacity: 0;
+  }
+}
 
 /* ============ 判定文字 ============ */
 

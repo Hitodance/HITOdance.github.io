@@ -22,7 +22,7 @@ const BATTLE_POINTS = {
   good: 40,
 };
 
-// 暫時使用的文字箭頭
+// 文字箭頭（現在畫面上顯示的是 assets/arrow/ 的圖片，文字被 CSS 藏起來了；圖片壞掉時可以當備用）
 const ARROWS = {
   left: "←",
   down: "↓",
@@ -241,6 +241,21 @@ function expireBattleNotes(player, now) {
   }
 }
 
+/* ============ 打中箭頭的特效 ============ */
+
+// 在定位箭頭的位置放一個會放大淡出的彩色箭頭 + 光環（樣子在 css/screens.css 的 .hit-burst）
+function showHitEffect(player, dir, perfect) {
+  const burst = document.createElement("span");
+
+  burst.className = perfect ? "hit-burst perfect" : "hit-burst";
+  burst.dataset.dir = dir;
+
+  document.querySelector(`#lane-${player} .receptors`).appendChild(burst);
+
+  // 動畫播完就拿掉
+  setTimeout(() => burst.remove(), 500);
+}
+
 /* ============ 玩家按下按鍵 ============ */
 
 function pressKey(player, dir) {
@@ -291,6 +306,9 @@ function pressKey(player, dir) {
   } else {
     judgeBattle(player, "good", now);
   }
+
+  // 打中的特效
+  showHitEffect(player, dir, distance <= JUDGE.perfect);
 
   // 讓人物做出動作
   battleDancers[player].kick();
