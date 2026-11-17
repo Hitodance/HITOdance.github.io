@@ -11,25 +11,6 @@
   width: 1920px;
   height: 1080px;
 }
-/* 最上面的桃粉色跑馬燈：marquee.png 是一小段文字，橫向重複鋪滿後一直往左移動 */
-.home-marquee {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 1920px;
-  height: 58px;
-  background: url("../assets/images/marquee.png") repeat-x;
-  background-size: 381px 58px; /* 一段文字的寬度是 381px */
-  animation: marquee 6s linear infinite; /* 秒數越小跑越快 */
-}
-@keyframes marquee {
-  from {
-    background-position-x: 0;
-  }
-  to {
-    background-position-x: -381px;
-  } /* 剛好移動一段，所以接起來看不出斷點；改成 381px 就變往右跑 */
-}
 .home-title {
   /* AI 檔「字」圖層，位置跟 AI 檔一樣 */
   position: absolute;
@@ -272,8 +253,10 @@
   bottom: 34px;
 }
 
-/* ---------- 最上面的跑馬燈（文字就是 index.html 裡的標題） ---------- */
-.select-title {
+/* ---------- 最上面的跑馬燈（文字就是 index.html 裡的標題） ----------
+   首頁、拍照頁、著裝完成頁的跑馬燈（.marquee-bar）也共用這一段 */
+.select-title,
+.marquee-bar {
   position: absolute;
   left: 0;
   right: 0;
