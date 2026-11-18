@@ -439,6 +439,15 @@
   margin-left: 20px;
   white-space: pre-line;
 }
+/* 說明文字比較長（像舞台介紹）時：字變小、最多兩行，才放得進框裡 */
+.select-desc p span.long {
+  font-size: 21px;
+  line-height: 1.5;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  overflow: hidden;
+}
 .select-desc.closed {
   width: 120px;
 }

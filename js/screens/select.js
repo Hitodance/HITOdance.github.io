@@ -892,6 +892,7 @@ function createSelectScreen(options) {
     desc.classList.add("closed");
     descTimer = setTimeout(function () {
       descText.textContent = text;
+      descText.classList.toggle("long", text.length > 26); // 一行放不下就縮小字、換成兩行
       desc.classList.remove("closed");
     }, DESC_CLOSE_MS);
   }

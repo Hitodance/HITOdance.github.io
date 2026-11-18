@@ -62,9 +62,12 @@ const INTRO_TEXT = `廣義來說死語是指過時的流行語、網路用語。
 
 // ---------- 3.0 舞台 ----------
 // image：舞台圖片的路徑，例如 "assets/images/stage-1.jpg"；先留空會顯示灰色方塊
+// desc：左下說明框的文字（選填）。字多的時候會自動變小、換成兩行（在 css/screens.css 的 .select-desc p span.long 調字的大小）
 const STAGES = [
-  { name: "電子花車", image: "assets/images/stage_float.jpg", scene: "float" }, // scene: "float" → 5.0 對戰頁用 3D 電子花車（js/lib/float-stage.js + assets/stage/float.glb）
-  { name: "復古舞廳", image: "assets/images/stage_hall.jpg", scene: "hall" }, // scene: "hall" → 3D 台式復古舞廳（js/lib/hall-stage.js）
+  { name: "電子花車", image: "assets/images/stage_float.jpg", scene: "float",
+    desc: "電子花車是臺灣獨特的民俗文化，以滿布車身的LED燈泡、煙火與彩虹燈管打造流動舞台，常見於廟會慶典與婚喪喜慶，展現熱鬧奔放的臺式美學與庶民活力。" }, // scene: "float" → 5.0 對戰頁用 3D 電子花車（js/lib/float-stage.js + assets/stage/float.glb）
+  { name: "復古舞廳", image: "assets/images/stage_hall.jpg", scene: "hall",
+    desc: "復古舞廳是臺灣七、八〇年代盛行的娛樂場所，以紫藍粉色燈光與旋轉迪斯可球營造華麗氛圍，伴隨著熱門舞曲，承載著一代人的青春回憶與臺式復古浪漫。" }, // scene: "hall" → 3D 台式復古舞廳（js/lib/hall-stage.js）
 ];
 
 // ---------- 4.0 音樂 ----------
