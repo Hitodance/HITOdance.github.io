@@ -59,14 +59,16 @@
   padding: 0 40px;
   border-bottom: 2px solid rgba(255, 255, 255, 0.25);
 }
+/* 左邊的死語：做成跟首頁星星一樣的霓虹燈管
+   每一筆筆畫都是一根燈管：中間淡粉白色（亮芯）、邊緣桃紅色、外面一圈桃紅色的光 */
 .dict-word {
   flex: 0 0 360px;
   font-size: var(--zh-h1);
   font-weight: 700;
-  background: var(--grad-warm);
-  -webkit-background-clip: text;
-  background-clip: text;
-  color: transparent;
+  color: #ffe4fb; /* 燈管中間的亮芯 */
+  -webkit-text-stroke: 5px #ff2df1; /* 燈管邊緣的桃紅色，數字越大邊越粗 */
+  paint-order: stroke fill; /* 先畫桃紅邊、再把亮芯疊在上面，字才不會變細 */
+  filter: drop-shadow(0 0 5px #ff00ff) drop-shadow(0 0 14px #ff00ff); /* 外面的光暈 */
 }
 .dict-meaning {
   flex: 1;
