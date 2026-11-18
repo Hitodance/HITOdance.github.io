@@ -568,10 +568,15 @@ async function startBattle(run) {
 
 /* ============ 3D 電子花車舞台 ============ */
 
-// 3.0 選到「電子花車」（data.js 裡 scene: "float"）才用 3D 舞台。
-// 開發小技巧：直接用 #battle 跳進來測試（還沒選舞台）時也會顯示，方便看效果
+// 3D 舞台用哪一個：data.js 的 STAGES 裡寫的 scene
+//   "float" = 電子花車、"hall" = 台式復古舞廳；沒寫 scene 的舞台就用原本的 2D 畫面
+// 開發小技巧：直接用 #battle 跳進來測試（還沒選舞台）時用電子花車
+function floatSceneKey() {
+  if (!GameState.stage) return "float";
+  return GameState.stage.scene || null;
+}
 function wantsFloatStage() {
-  return !GameState.stage || GameState.stage.scene === "float";
+  return !!floatSceneKey();
 }
 
 function startFloatStage(run) {
@@ -582,6 +587,7 @@ function startFloatStage(run) {
   const begin = () => {
     if (run !== battleRun) return; // 已經離開對戰頁了
     FloatStage.start({
+      stage: floatSceneKey(), // 電子花車 or 台式復古舞廳
       host: screen, // 畫在對戰頁
       camera: "tour", // 照 float-stage.js 的 shots 運鏡
       bpm: GameState.song?.bpm || 120,

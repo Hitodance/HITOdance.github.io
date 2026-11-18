@@ -8,10 +8,10 @@
      4. 這時候小人才開始跳舞（贏）或跪下（輸）
    揭曉途中按空白鍵 = 直接跳到最後結果；揭曉完再按空白鍵才回首頁
 
-   3.0 選「電子花車」的話：
-     背景是 3D 電子花車（攝影機固定在正面，看得到整台），小人站在舞台上，
-     贏的繼續跳舞、輸的跪下，平手就一起跳舞，畫面上方一直掉彩帶下來。
-   選其他舞台：跟原本一樣，贏的舉手歡呼，輸的垂頭喪氣。 */
+   3.0 選「電子花車」或「復古舞廳」的話：
+     背景是 3D 舞台，公布前燈光暗下來、光束亂掃；公布後鏡頭依序拍贏家、輸家（各打一道 spotlight），
+     最後拉遠、全部亮起來。小人站在舞台上，贏的跳舞、輸的跪下，平手就一起跳舞。
+   選沒有 3D 舞台的：贏的舉手歡呼，輸的垂頭喪氣。 */
 
 const resultDancers = {
   p1: LowPoly.create(document.getElementById("result-dancer-p1"), "p1"),
@@ -153,6 +153,7 @@ function startResultStage(run) {
   const begin = () => {
     if (run !== resultRun) return;
     FloatStage.start({
+      stage: floatSceneKey(), // 電子花車 or 台式復古舞廳（floatSceneKey 寫在 battle.js）
       host: screen, // 畫在結算頁
       camera: "fixed", // 攝影機固定在正面（位置在 float-stage.js 的 resultCamera）
       mood: "suspense", // 公布前舞台是暗的，只有光束在亂掃；公布後 focusPlayers 會打 spotlight、最後全部亮起來
@@ -180,7 +181,6 @@ function startResultStage(run) {
 
 function stopResultStage() {
   if (window.FloatStage) FloatStage.stop();
-  if (typeof Confetti !== "undefined") Confetti.stop();
   document.getElementById("screen-result").classList.remove("has-float");
 }
 
@@ -228,8 +228,6 @@ registerScreen("result", {
       if (onFloat && window.FloatStage && FloatStage.focusPlayers) {
         FloatStage.focusPlayers(score2 > score1 ? ["p2", "p1"] : ["p1", "p2"]);
       }
-      // 有彩帶的話，公布的時候才開始灑
-      if (onFloat && typeof Confetti !== "undefined") Confetti.start();
     };
 
     startReveal(run);

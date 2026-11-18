@@ -64,7 +64,7 @@ const INTRO_TEXT = `廣義來說死語是指過時的流行語、網路用語。
 // image：舞台圖片的路徑，例如 "assets/images/stage-1.jpg"；先留空會顯示灰色方塊
 const STAGES = [
   { name: "電子花車", image: "", scene: "float" }, // scene: "float" → 5.0 對戰頁用 3D 電子花車（js/lib/float-stage.js + assets/stage/float.glb）
-  { name: "復古舞廳", image: "" },
+  { name: "復古舞廳", image: "", scene: "hall" }, // scene: "hall" → 3D 台式復古舞廳（js/lib/hall-stage.js）
 ];
 
 // ---------- 4.0 音樂 ----------

@@ -1272,15 +1272,3 @@
   opacity: 1;
 }
 
-/* 從上面掉下來的彩帶（js/screens/result.js 畫的） */
-.confetti {
-  display: none;
-  position: absolute;
-  inset: 0;
-  width: 1920px;
-  height: 1080px;
-  pointer-events: none;
-}
-#screen-result.has-float .confetti {
-  display: block;
-}

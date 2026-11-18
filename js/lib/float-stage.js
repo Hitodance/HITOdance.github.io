@@ -11,8 +11,13 @@
      3. 把兩個 3D 小人（lowpoly.js 畫的）放到舞台上跳舞
      4. 攝影機照 CONFIG.camera.shots 的順序一路飛上舞台再飛回來
 
+   兩個舞台共用這支程式：
+     "float" = 電子花車（assets/stage/float.glb，設定在下面的 CONFIG）
+     "hall"  = 台式復古舞廳（js/lib/hall-stage.js 建出來的，設定在那支檔案最上面的 HALL）
+
    battle.js / result.js 這樣用：
      FloatStage.start({
+       stage: "float" 或 "hall",         // 要哪個舞台（3.0 選的舞台，data.js 的 scene）
        host: 畫面的 <section>,           // 3D 舞台要畫在哪一頁（對戰頁、結算頁共用同一個舞台）
        camera: "tour" 或 "fixed",         // tour = 照 shots 運鏡（對戰）；fixed = 固定正面（結算）
        dancers: { p1: canvas, p2: canvas }, viewers: { p1, p2 },
@@ -29,6 +34,7 @@ import { EffectComposer } from "three/addons/postprocessing/EffectComposer.js";
 import { RenderPass } from "three/addons/postprocessing/RenderPass.js";
 import { UnrealBloomPass } from "three/addons/postprocessing/UnrealBloomPass.js";
 import { OutputPass } from "three/addons/postprocessing/OutputPass.js";
+import { HALL, buildHall } from "./hall-stage.js";
 
 // ---------- 可以調整的設定 ----------
 const CONFIG = {
@@ -79,6 +85,7 @@ const CONFIG = {
     x: 2.2,                 // 離舞台中線多遠（P1 在左、P2 在右）
     y: -1.2,                // 前後（負的 = 往舞台前緣；背板在 1.0、舞台前緣在 -3.7）
     height: 1.9,            // 小人多高（公尺）
+    lift: 0.11  ,             // 整個人往上抬多少（覺得陷進舞台就調大、飄起來就調小）
   },
 
   // 攝影機運鏡：照順序一個一個鏡頭飛過去，最後一個會接回第一個（一直循環）
@@ -120,6 +127,13 @@ const CONFIG = {
 function V(x, y, z) {
   return new THREE.Vector3(x, z, -y);
 }
+
+// ---------- 兩個舞台：電子花車（float）、台式復古舞廳（hall） ----------
+let stageKey = "float";
+function SC() { return stageKey === "hall" ? HALL : CONFIG; }   // 目前舞台的鏡頭、小人位置、結算鏡頭設定
+const worlds = {};          // 已經建好的舞台：{ group, deckTop, lights, beams, spots, … }
+const worldPromises = {};
+function W() { return worlds[stageKey]; }
 
 // ============================================================
 //  一打開網頁就先下載模型
@@ -296,15 +310,14 @@ function prepareModel(root) {
 //  主程式
 // ============================================================
 let renderer, composer, scene, camera;
-let deckTop = 1.3;
 let running = false;
 let frameId = 0;
 let startTime = 0;
-let readyPromise = null;
 let session = 0;      // 每次 start / stop 換一個號碼，避免離開對戰頁後模型才載好又自己開始跑
 const dancers = {};   // p1 / p2：{ mesh, texture, viewer }
 
-function init(gltf) {
+// 畫面、攝影機、光暈：兩個舞台共用，只做一次
+function initRenderer() {
   const canvas = document.getElementById("battle-float");
   const w = Math.round(1920 * CONFIG.renderScale);
   const h = Math.round(1080 * CONFIG.renderScale);
@@ -315,34 +328,7 @@ function init(gltf) {
   renderer.toneMapping = THREE.ACESFilmicToneMapping;
 
   scene = new THREE.Scene();
-  scene.background = new THREE.Color(0x060b22);
-  scene.fog = new THREE.Fog(0x060b22, 24, 60);
   camera = new THREE.PerspectiveCamera(CONFIG.camera.fov, w / h, 0.1, 200);
-
-  // 燈光：只照亮鋼架、地板、音箱（LED 和圖稿自己會亮）
-  const hemi = new THREE.HemisphereLight(0x8090ff, 0x200820, 0.9);
-  scene.add(hemi);
-  const key = new THREE.DirectionalLight(0xffffff, 1.6);
-  key.position.set(0, 8, 14);
-  scene.add(key);
-  const pink = new THREE.PointLight(0xff80e6, 40, 14);
-  pink.position.copy(V(0, -1.5, 3.8));
-  scene.add(pink);
-  stageLights = [hemi, key, pink].map((l) => ({ light: l, base: l.intensity }));
-
-  // 花車
-  const model = gltf.scene;
-  prepareModel(model);
-  scene.add(model);
-
-  // 舞台面高度：從模型裡的「舞台地板」量出來，你在 Blender 改高度這裡也會跟著變
-  const floor = model.getObjectByName("舞台地板");
-  if (floor) {
-    deckTop = new THREE.Box3().setFromObject(floor).max.y;
-  }
-
-  buildBeams();
-  buildSpotlights();
 
   composer = new EffectComposer(renderer);
   composer.addPass(new RenderPass(scene, camera));
@@ -351,12 +337,90 @@ function init(gltf) {
   composer.addPass(new OutputPass());
 }
 
+// 電子花車舞台（模型載好才建）
+function buildFloatWorld(gltf) {
+  const group = new THREE.Group();
+
+  // 燈光：只照亮鋼架、地板、音箱（LED 和圖稿自己會亮）
+  const hemi = new THREE.HemisphereLight(0x8090ff, 0x200820, 0.9);
+  group.add(hemi);
+  const key = new THREE.DirectionalLight(0xffffff, 1.6);
+  key.position.set(0, 8, 14);
+  group.add(key);
+  const pink = new THREE.PointLight(0xff80e6, 40, 14);
+  pink.position.copy(V(0, -1.5, 3.8));
+  group.add(pink);
+
+  // 花車
+  const model = gltf.scene;
+  prepareModel(model);
+  group.add(model);
+
+  // 舞台面高度：從模型裡的「舞台地板」量出來，你在 Blender 改高度這裡也會跟著變
+  let top = 1.3;
+  const floor = model.getObjectByName("舞台地板");
+  if (floor) {
+    top = new THREE.Box3().setFromObject(floor).max.y;
+  }
+
+  const world = {
+    group: group,
+    deckTop: top,
+    background: new THREE.Color(0x060b22),
+    fog: new THREE.Fog(0x060b22, 24, 60),
+    lights: [hemi, key, pink].map((l) => ({ light: l, base: l.intensity })),
+    beamCfg: CONFIG.beams,
+    clipBeams: false,
+    spotHeadZ: 11,
+    applyMaster: function (m) {
+      blinkUniforms.uMaster.value = m;
+      artMaterials.forEach((mat) => mat.color.setScalar(CONFIG.artBrightness * m));
+    },
+    update: null,
+  };
+  return world;
+}
+
+// 舞台做好之後的共同步驟：放進主場景、加光束和 spotlight
+function finishWorld(world, cfg) {
+  world.beams = [];
+  world.spots = {};
+  scene.add(world.group);
+  world.group.visible = false;
+  buildBeams(world);
+  buildSpotlights(world, cfg);
+  return world;
+}
+
+function ensureWorld(key) {
+  if (!worldPromises[key]) {
+    if (key === "hall") {
+      worldPromises[key] = Promise.resolve().then(function () {
+        return finishWorld(buildHall({ renderer: renderer, renderScale: CONFIG.renderScale }), HALL);
+      });
+    } else {
+      worldPromises[key] = modelPromise.then(function (gltf) {
+        return finishWorld(buildFloatWorld(gltf), CONFIG);
+      });
+    }
+    worldPromises[key].then(function (w) { worlds[key] = w; });
+  }
+  return worldPromises[key];
+}
+
+// 只顯示目前的舞台
+function showWorld(key) {
+  stageKey = key;
+  Object.keys(worlds).forEach((k) => { worlds[k].group.visible = k === key; });
+  const w = W();
+  scene.background = w.background;
+  scene.fog = w.fog;
+  camPath = null;            // 運鏡路線換成這個舞台的
+}
+
 // ============================================================
 //  舞台燈光：彩色光束、spotlight、暗場
 // ============================================================
-let stageLights = [];        // 照亮鋼架地板的燈（暗場時一起變暗）
-const beamList = [];         // 彩色光束
-const spots = {};            // p1 / p2 的 spotlight
 let master = 1, masterTarget = 1;          // 整體亮度（1 = 正常，mood.dark = 暗場）
 let beamSpeed = 0, beamSpeedTarget = 0;    // 光束掃動速度（會慢慢變，不會突然跳）
 let beamClock = 0;
@@ -428,19 +492,21 @@ function poolMaterial(color, opacity) {
 }
 
 // 一道光束：燈頭固定，光束和地上的光圈跟著「打到哪」移動
-function makeBeam(head, colorA, colorB, radius, opacity) {
+function makeBeam(head, colorA, colorB, radius, opacity, parent) {
   const length = 20;
   const geo = new THREE.ConeGeometry(radius, length, 40, 1, true);
   geo.translate(0, -length / 2, 0);            // 尖端（燈頭）放在原點
   const cone = new THREE.Mesh(geo, beamMaterial(colorA, colorB, opacity));
   cone.position.copy(head);
   cone.frustumCulled = false;
-  scene.add(cone);
+  cone.renderOrder = 2;
+  parent.add(cone);
 
   const pool = new THREE.Mesh(new THREE.CircleGeometry(1, 40), poolMaterial(colorB, opacity * 1.6));
   pool.rotation.x = -Math.PI / 2;
-  scene.add(pool);
-  return { cone: cone, pool: pool, head: head, length: length, radius: radius, opacity: opacity };
+  pool.renderOrder = 2;
+  parent.add(pool);
+  return { cone: cone, pool: pool, head: head, length: length, radius: radius, opacity: opacity, clip: false };
 }
 
 const DOWN = new THREE.Vector3(0, -1, 0);
@@ -448,10 +514,12 @@ function aimBeam(b, target, strength) {
   const dir = target.clone().sub(b.head);
   const dist = dir.length();
   b.cone.quaternion.setFromUnitVectors(DOWN, dir.normalize());
+  // 舞廳：光束剛好停在地板上（花車的光束比較長，會被舞台擋住）
+  b.cone.scale.set(1, b.clip ? dist / b.length : 1, 1);
   b.cone.material.uniforms.uOpacity.value = b.opacity * strength;
   b.cone.visible = strength > 0.001;
   // 光圈：光束在地上的大小（離燈頭越遠越大）
-  const r = b.radius * dist / b.length * 1.4;
+  const r = b.clip ? b.radius * 1.4 : b.radius * dist / b.length * 1.4;
   b.pool.position.copy(target);
   b.pool.position.y += 0.02;
   b.pool.scale.set(r, r, r);
@@ -459,39 +527,44 @@ function aimBeam(b, target, strength) {
   b.pool.visible = b.cone.visible;
 }
 
-function buildBeams() {
-  const c = CONFIG.beams;
-  if (!c.on) return;
+function buildBeams(world) {
+  const c = world.beamCfg;
+  if (!c || !c.on) return;
   c.lights.forEach(function (l, i) {
-    const b = makeBeam(V(l.head[0], l.head[1], l.head[2]), l.colors[0], l.colors[1], c.radius, c.opacity);
+    const b = makeBeam(V(l.head[0], l.head[1], l.head[2]), l.colors[0], l.colors[1], c.radius, c.opacity, world.group);
     b.index = i;
     b.baseX = l.head[0];
-    beamList.push(b);
+    b.clip = world.clipBeams;
+    b.area = c.area || { x: 3.2, yc: -1.3, ya: 1.8, clampX: 5 };
+    b.deck = world.deckTop;
+    world.beams.push(b);
   });
 }
 
 // 每盞燈打在舞台上的位置：幾個不同速度的 sin 疊起來，看起來像亂掃
 function beamTarget(b, clock) {
   const i = b.index + 1;
-  const x = b.baseX * 0.6 + 3.2 * Math.sin(clock * (0.9 + 0.23 * i) + i * 1.7) + 0.8 * Math.sin(clock * 2.3 + i);
-  const y = -1.3 + 1.8 * Math.sin(clock * (0.7 + 0.17 * i) + i * 2.9);
-  return V(Math.max(-5, Math.min(5, x)), y, 0).setY(deckTop);
+  const a = b.area;
+  const x = b.baseX * 0.6 + a.x * Math.sin(clock * (0.9 + 0.23 * i) + i * 1.7) + 0.8 * Math.sin(clock * 2.3 + i);
+  const y = a.yc + a.ya * Math.sin(clock * (0.7 + 0.17 * i) + i * 2.9);
+  return V(Math.max(-a.clampX, Math.min(a.clampX, x)), y, 0).setY(b.deck);
 }
 
 // spotlight：白色光束 + 真的聚光燈（照亮地板），從小人頭上正前方打下來
-function buildSpotlights() {
+function buildSpotlights(world, cfg) {
   const m = CONFIG.mood;
   ["p1", "p2"].forEach(function (p) {
     const sx = p === "p1" ? -1 : 1;
-    const target = V(sx * CONFIG.dancer.x, CONFIG.dancer.y, 0).setY(deckTop);
-    const head = V(sx * CONFIG.dancer.x * 0.8, CONFIG.dancer.y - 2.5, 11);
-    const b = makeBeam(head, m.spotColor, m.spotColor, 0.95, m.spotOpacity);
+    const target = V(sx * cfg.dancer.x, cfg.dancer.y, 0).setY(world.deckTop);
+    const head = V(sx * cfg.dancer.x * 0.8, cfg.dancer.y - 2.5, world.spotHeadZ);
+    const b = makeBeam(head, m.spotColor, m.spotColor, world.clipBeams ? 0.7 : 0.95, m.spotOpacity, world.group);
+    b.clip = world.clipBeams;
     const light = new THREE.SpotLight(m.spotColor, 0, 25, 0.16, 0.6, 1);
     light.position.copy(head);
     light.target.position.copy(target);
-    scene.add(light);
-    scene.add(light.target);
-    spots[p] = { beam: b, light: light, target: target, level: 0, levelTarget: 0 };
+    world.group.add(light);
+    world.group.add(light.target);
+    world.spots[p] = { beam: b, light: light, target: target, level: 0, levelTarget: 0 };
   });
 }
 
@@ -499,7 +572,8 @@ function buildSpotlights() {
 function setMood(mood, instant) {
   const suspense = mood === "suspense";
   masterTarget = suspense ? CONFIG.mood.dark : 1;
-  beamSpeedTarget = suspense ? CONFIG.beams.suspenseSpeed : CONFIG.beams.speed;
+  const bc = W().beamCfg || CONFIG.beams;
+  beamSpeedTarget = suspense ? bc.suspenseSpeed : bc.speed;
   if (instant) {
     master = masterTarget;
     beamSpeed = beamSpeedTarget;
@@ -507,7 +581,7 @@ function setMood(mood, instant) {
 }
 
 function setSpot(player, on, instant) {
-  const sp = spots[player];
+  const sp = W().spots[player];
   if (!sp) return;
   sp.levelTarget = on ? 1 : 0;
   if (instant) sp.level = sp.levelTarget;
@@ -526,21 +600,22 @@ function updateLighting(t, dt) {
   beamSpeed += (beamSpeedTarget - beamSpeed) * Math.min(1, dt * 1.5);
   beamClock += dt * beamSpeed;
 
-  blinkUniforms.uMaster.value = master;
-  artMaterials.forEach((m) => m.color.setScalar(CONFIG.artBrightness * master));
-  stageLights.forEach((s) => { s.light.intensity = s.base * Math.max(0.15, master); });
+  const world = W();
+  world.applyMaster(master);
+  world.lights.forEach((s) => { s.light.intensity = s.base * Math.max(0.15, master); });
 
-  beamList.forEach((b) => aimBeam(b, beamTarget(b, beamClock), 1));
+  world.beams.forEach((b) => aimBeam(b, beamTarget(b, beamClock), 1));
 
   ["p1", "p2"].forEach(function (p) {
-    const sp = spots[p];
+    const sp = world.spots[p];
     if (!sp) return;
     sp.level += (sp.levelTarget - sp.level) * Math.min(1, dt * 4);
-    aimBeam(sp.beam, sp.target, sp.level);
-    sp.light.intensity = 80 * sp.level;
-    // 小人：暗場時也跟著暗，被 spotlight 打到就亮起來
+    const strength = world.spotStrength === undefined ? 1 : world.spotStrength;   // 每個舞台的 spotlight 亮度
+    aimBeam(sp.beam, sp.target, sp.level * strength);
+    sp.light.intensity = 80 * sp.level * strength;
+    // 小人：暗場時也跟著暗，被 spotlight 打到就亮起來（spotlight 弱一點，小人也就不會那麼亮）
     const d = dancers[p];
-    if (d) d.mesh.material.color.setScalar(Math.max(master, sp.level));
+    if (d) d.mesh.material.color.setScalar(Math.max(master, Math.min(1, sp.level * (0.55 + 0.45 * strength))));
   });
 }
 
@@ -567,9 +642,6 @@ function attachDancer(player, canvas, viewer) {
     const mesh = new THREE.Mesh(geo, new THREE.MeshBasicMaterial({
       map: texture, alphaTest: 0.5, side: THREE.DoubleSide,
     }));
-    const sx = player === "p1" ? -1 : 1;
-    mesh.position.copy(V(sx * CONFIG.dancer.x, CONFIG.dancer.y, 0));
-    mesh.position.y = deckTop;
     scene.add(mesh);
 
     // 腳下的影子
@@ -579,11 +651,9 @@ function attachDancer(player, canvas, viewer) {
     );
     shadow.rotation.x = -Math.PI / 2;
     shadow.scale.set(1, 0.55, 1);
-    shadow.position.copy(mesh.position);
-    shadow.position.y = deckTop + 0.01;
     scene.add(shadow);
 
-    d = dancers[player] = { mesh: mesh, texture: texture, canvas: canvas };
+    d = dancers[player] = { mesh: mesh, texture: texture, canvas: canvas, shadow: shadow, builtHeight: CONFIG.dancer.height };
   }
   // 對戰頁和結算頁的小人是不同的 canvas：換頁時換成這一頁的小人
   if (d.canvas !== canvas) {
@@ -594,6 +664,15 @@ function attachDancer(player, canvas, viewer) {
     d.canvas = canvas;
   }
   d.viewer = viewer;
+
+  // 站到目前這個舞台上（每個舞台的位置、高度不一樣）
+  const cfg = SC().dancer;
+  const sx = player === "p1" ? -1 : 1;
+  d.mesh.position.copy(V(sx * cfg.x, cfg.y, 0));
+  d.mesh.position.y = W().deckTop + (cfg.lift || 0);   // lift：整個人往上抬一點，才不會像陷進地板
+  d.mesh.scale.setScalar(cfg.height / d.builtHeight);
+  d.shadow.position.copy(d.mesh.position);
+  d.shadow.position.y = W().deckTop + 0.01;
 }
 
 // ---------- 攝影機 ----------
@@ -607,7 +686,7 @@ let cameraMode = "tour";
 // ---------- 結算頁的攝影機 ----------
 // 從近景慢慢拉遠：一開始快、最後慢慢停下來
 function pullPose(t) {
-  const r = CONFIG.resultCamera;
+  const r = SC().resultCamera;
   const end = { pos: V(r.pos[0], r.pos[1], r.pos[2]), look: V(r.look[0], r.look[1], r.look[2]) };
   if (!r.from) return end;
   const k = Math.min(1, t / (r.pullSeconds || 1));
@@ -620,9 +699,9 @@ function pullPose(t) {
 
 // 對著某個小人的特寫位置
 function closeUpPose(player) {
-  const c = CONFIG.resultCamera.closeUp;
-  const dx = (player === "p1" ? -1 : 1) * CONFIG.dancer.x;
-  const dy = CONFIG.dancer.y;
+  const c = SC().resultCamera.closeUp;
+  const dx = (player === "p1" ? -1 : 1) * SC().dancer.x;
+  const dy = SC().dancer.y;
   return {
     pos: V(dx * (1 - c.side), dy - c.distance, c.height),
     look: V(dx, dy, c.lookHeight),
@@ -647,7 +726,7 @@ function timelinePose(t) {
 
 // players：依序要拍誰，例如 ["p2", "p1"] = 先拍 P2（贏家）再拍 P1（輸家）
 function focusPlayers(players) {
-  const r = CONFIG.resultCamera;
+  const r = SC().resultCamera;
   const c = r.closeUp;
   const now = (performance.now() - startTime) / 1000;
   const keys = [{ t: now, pose: closeUpTimeline ? timelinePose(now) : pullPose(now) }];
@@ -662,7 +741,7 @@ function focusPlayers(players) {
   closeUpTimeline = keys;
 
   // 燈光：鏡頭飛到誰，誰就打 spotlight；最後拉遠時，舞台燈光全部亮起來
-  beamSpeedTarget = CONFIG.beams.speed;     // 光束不再亂掃
+  beamSpeedTarget = (W().beamCfg || CONFIG.beams).speed;     // 光束不再亂掃
   players.forEach(function (p, i) {
     timedEvents.push({ t: now + i * c.seconds, fn: () => setSpot(p, true) });
   });
@@ -670,7 +749,7 @@ function focusPlayers(players) {
 }
 function updateCamera(t) {
   if (cameraMode === "fixed") {
-    const r = CONFIG.resultCamera;
+    const r = SC().resultCamera;
     const pose = closeUpTimeline ? timelinePose(t) : pullPose(t);
     camera.position.copy(pose.pos);
     camera.lookAt(pose.look);
@@ -680,7 +759,7 @@ function updateCamera(t) {
     }
     return;
   }
-  const c = CONFIG.camera;
+  const c = SC().camera;
   if (!camPath) {
     camPath = new THREE.CatmullRomCurve3(c.shots.map((s) => V(s.pos[0], s.pos[1], s.pos[2])), true, "centripetal");
     lookPath = new THREE.CatmullRomCurve3(c.shots.map((s) => V(s.look[0], s.look[1], s.look[2])), true, "centripetal");
@@ -713,6 +792,7 @@ function frame(now) {
   lastFrame = now;
   updateCamera(t);
   updateLighting(t, dt);
+  if (W().update) W().update(dt, now / 1000);
   blinkUniforms.uTime.value = now / 1000;
 
   ["p1", "p2"].forEach(function (player) {
@@ -737,11 +817,12 @@ window.FloatStage = {
   start: function (options) {
     options = options || {};
     const mySession = ++session;
-    if (!readyPromise) {
-      readyPromise = modelPromise.then(init);
-    }
-    return readyPromise.then(function () {
+    const key = options.stage === "hall" ? "hall" : "float";
+    if (!renderer) initRenderer();
+    return ensureWorld(key).then(function (world) {
+      worlds[key] = world;
       if (mySession !== session) return;   // 已經離開這一頁了
+      showWorld(key);
       // 把 3D 舞台的畫布搬到這一頁（放在最底層，其他文字都蓋在上面）
       const canvas = renderer.domElement;
       if (options.host && canvas.parentNode !== options.host) {
