@@ -700,26 +700,25 @@
 #screen-battle.has-float .dancer {
   opacity: 0;
 }
-
 /* ============ 固定箭頭位置 ============ */
 
 .lane {
   position: absolute;
-  top: 190px;
+  top: 150px;
   bottom: 60px;
-  width: 520px;
+  width: 680px;
 
-  --arrow-size: 100px;
+  --arrow-size: 155px;
   --hit-y: 80px;
   --arrow-color: var(--p1);
 }
 
 .lane.p1 {
-  left: 410px;
+  left: 180px;
 }
 
 .lane.p2 {
-  right: 410px;
+  right: 180px;
   --arrow-color: var(--p2);
 }
 
@@ -807,10 +806,13 @@
 
 .battle-note {
   color: var(--arrow-color);
-  text-shadow: 0 0 12px currentColor;
-  filter: drop-shadow(0 0 8px var(--dir-color));
-}
 
+  text-shadow: none;
+
+  /* 先加深色陰影，再加霓虹光暈 */
+  filter: drop-shadow(0 4px 3px #000000) drop-shadow(0 0 6px var(--dir-color))
+    drop-shadow(0 0 12px var(--dir-color));
+}
 /* ============ PNG 箭頭圖片 ============
    圖在 assets/arrow/：fixed = 上方定位用的白色線框，note = 往上跑的彩色箭頭 */
 
@@ -967,15 +969,158 @@
     -2px -2px 5px black;
 }
 
+/* ============ 判定文字樣式 ============ */
+
 .battle-judge {
-  top: 40%;
-  font-size: var(--en-h3);
-  color: var(--arrow-color);
+  top: 27%;
+  font-size: 100px;
+  font-weight: 500;
+  letter-spacing: 2px;
+  white-space: nowrap;
+
+  -webkit-text-stroke: 1px #000000;
+  paint-order: stroke fill;
+
+  filter: drop-shadow(3px 4px 0px #000000);
+  text-shadow: none;
+
+  z-index: 10;
+  /* 隨機位置與旋轉角度 */
+  --judge-x: 0px;
+  --judge-y: 0px;
+  --judge-rotate: 0deg;
+
+  transform: translate(var(--judge-x), var(--judge-y))
+    rotate(var(--judge-rotate));
 }
 
+/* 超ㄅㄧㄤˋ：桃紅色霓虹燈 */
+.battle-judge.perfect {
+  background: none;
+  color: #ffe4fb;
+  -webkit-text-fill-color: #ffe4fb;
+  -webkit-text-stroke: 6px #ff2df1;
+  paint-order: stroke fill;
+  filter: drop-shadow(0 0 8px #ff00ff) drop-shadow(0 0 26px #ff00ff);
+}
+
+/* 粉讚：橘色霓虹燈 */
+.battle-judge.great {
+  background: none;
+  color: #fff0dc;
+  -webkit-text-fill-color: #fff0dc;
+  -webkit-text-stroke: 6px #ff6500;
+  paint-order: stroke fill;
+  filter: drop-shadow(0 0 8px #ff6500) drop-shadow(0 0 26px #ff6500);
+}
+
+/* 哇哩勒：綠色霓虹燈 */
+.battle-judge.good {
+  background: none;
+  color: #eaffef;
+  -webkit-text-fill-color: #eaffef;
+  -webkit-text-stroke: 6px #00ff40;
+  paint-order: stroke fill;
+  filter: drop-shadow(0 0 8px #00ff40) drop-shadow(0 0 26px #00ff40);
+}
+
+/* 阿娘喂：水藍色霓虹燈 */
+.battle-judge.miss {
+  background: none;
+  color: #e5ffff;
+  -webkit-text-fill-color: #e5ffff;
+  -webkit-text-stroke: 6px #00ffff;
+  paint-order: stroke fill;
+  filter: drop-shadow(0 0 8px #00ffff) drop-shadow(0 0 26px #00ffff);
+}
+/* ============ 判定文字彈跳動畫 ============ */
+
+.battle-judge.pop {
+  animation: judge-pop 0.28s ease-out;
+}
+
+@keyframes judge-pop {
+  0% {
+    scale: 0.65;
+    opacity: 0.3;
+  }
+
+  45% {
+    scale: 1.2;
+    opacity: 1;
+  }
+
+  100% {
+    scale: 1;
+    opacity: 1;
+  }
+}
+/* ============ COMBO 整體位置 ============ */
+
 .combo {
-  top: 50%;
-  font-size: var(--en-p);
+  top: 45%; /* 垂直位置 */
+  z-index: 11;
+
+  display: flex;
+  justify-content: center;
+  align-items: baseline;
+  gap: 12px; /* 數字與英文的距離 */
+
+  white-space: nowrap;
+  text-shadow: none;
+  pointer-events: none;
+}
+
+/* ============ COMBO 數字 ============ */
+
+.combo-number {
+  font-family: inherit; /* 使用網站原本的字體 */
+  font-size: 160px; /* 數字大小 */
+  font-weight: 900;
+  font-style: normal;
+  line-height: 1;
+  letter-spacing: -4px;
+
+  color: #ffffff;
+  -webkit-text-stroke: 8px #b967ff;
+  paint-order: stroke fill;
+
+  filter: drop-shadow(5px 6px 0px #280b45) drop-shadow(0 0 12px #a000ff);
+}
+
+/* ============ COMBO 英文 ============ */
+
+.combo-label {
+  font-family: inherit; /* 使用網站原本的字體 */
+  font-size: 52px; /* 英文大小 */
+  font-weight: 900;
+  font-style: normal;
+  letter-spacing: 0px;
+
+  color: #baffec;
+  -webkit-text-stroke: 6px #29143d;
+  paint-order: stroke fill;
+
+  filter: drop-shadow(3px 4px 0px #29143d) drop-shadow(0 0 8px #00ffcc);
+}
+/* ============ COMBO 彈跳動畫 ============ */
+
+@keyframes combo-pop {
+  0% {
+    transform: scale(1.25);
+  }
+
+  60% {
+    transform: scale(0.95);
+  }
+
+  100% {
+    transform: scale(1);
+  }
+}
+
+.combo.pop {
+  animation: combo-pop 0.23s ease-out;
 }
 
 .battle-countdown {
@@ -1078,7 +1223,9 @@
   pointer-events: none;
 }
 #screen-result.has-float .result-winner {
-  text-shadow: 0 0 30px var(--pink), 0 4px 12px rgba(0, 0, 0, 0.6);
+  text-shadow:
+    0 0 30px var(--pink),
+    0 4px 12px rgba(0, 0, 0, 0.6);
 }
 
 /* ---- 結算頁的揭曉動畫（js/screens/result.js 的 REVEAL） ---- */

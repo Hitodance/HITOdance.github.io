@@ -18,21 +18,21 @@ const resultDancers = {
   p2: LowPoly.create(document.getElementById("result-dancer-p2"), "p2"),
 };
 
-let resultRun = 0;   // 每次進結算頁換一個號碼，離開後就不會再做事
+let resultRun = 0; // 每次進結算頁換一個號碼，離開後就不會再做事
 
 const REVEAL = {
-  startDelay: 1.2,   // 進結算頁後等幾秒才開始加分數（等畫面亮起來）
-  rowGap: 0.55,      // 細節每一行隔幾秒跳出來
-  rowCount: 0.4,     // 每一行的數字要花幾秒加上去
-  scoreExtra: 0.6,   // 總分比最後一行再多加幾秒才停
-  winnerDelay: 0.8,  // 分數加完之後停幾秒才公布獲勝者
+  startDelay: 1.2, // 進結算頁後等幾秒才開始加分數（等畫面亮起來）
+  rowGap: 0.55, // 細節每一行隔幾秒跳出來
+  rowCount: 0.4, // 每一行的數字要花幾秒加上去
+  scoreExtra: 0.6, // 總分比最後一行再多加幾秒才停
+  winnerDelay: 0.8, // 分數加完之後停幾秒才公布獲勝者
 };
 
 // 把畫面上的數字從 0 加到 to（一開始快、最後慢慢停）
 function countUp(el, to, seconds, run) {
   const start = performance.now();
   function step(now) {
-    if (run !== resultRun || revealDone) return;   // 已經離開，或已經按空白鍵跳到結果
+    if (run !== resultRun || revealDone) return; // 已經離開，或已經按空白鍵跳到結果
     const k = Math.min(1, (now - start) / (seconds * 1000));
     el.textContent = Math.round(to * (1 - Math.pow(1 - k, 3)));
     if (k < 1) requestAnimationFrame(step);
@@ -46,10 +46,10 @@ function showResult(player) {
   document.getElementById("result-score-" + player).textContent = "0";
 
   const rows = [
-    ["PERFECT", result.perfect],
-    ["GREAT", result.great],
-    ["GOOD", result.good],
-    ["MISS", result.miss],
+    ["超ㄅㄧㄤˋ", result.perfect],
+    ["粉讚", result.great],
+    ["哇哩勒", result.good],
+    ["阿娘喂", result.miss],
     ["MAX COMBO", result.maxCombo],
   ];
   const list = document.getElementById("result-judge-" + player);
@@ -60,20 +60,19 @@ function showResult(player) {
     const value = document.createElement("span");
     label.textContent = row[0];
     value.textContent = "0";
-    value.dataset.final = row[1];      // 最後要加到多少
-    li.className = "reveal-hide";      // 先藏起來，等一下一行一行跳出來
+    value.dataset.final = row[1]; // 最後要加到多少
+    li.className = "reveal-hide"; // 先藏起來，等一下一行一行跳出來
     li.appendChild(label);
     li.appendChild(value);
     list.appendChild(li);
   });
 }
 
-
 /* ============ 揭曉 ============ */
 
 let revealDone = true;
 let revealTimers = [];
-let revealEnding = null;   // 公布獲勝者要做的事（onEnter 準備好）
+let revealEnding = null; // 公布獲勝者要做的事（onEnter 準備好）
 
 function later(seconds, fn) {
   revealTimers.push(setTimeout(fn, seconds * 1000));
@@ -82,22 +81,28 @@ function later(seconds, fn) {
 function startReveal(run) {
   revealDone = false;
   const hint = document.querySelector("#screen-result .hint");
-  hint.classList.add("hidden");   // 揭曉完才顯示「按空白鍵回到主畫面」
+  hint.classList.add("hidden"); // 揭曉完才顯示「按空白鍵回到主畫面」
 
   const rowCount = document.querySelectorAll("#result-judge-p1 li").length;
   const scoreSeconds = rowCount * REVEAL.rowGap + REVEAL.scoreExtra;
 
   later(REVEAL.startDelay, () => {
     ["p1", "p2"].forEach((player) => {
-      countUp(document.getElementById("result-score-" + player),
-        GameState.result[player].score, scoreSeconds, run);
+      countUp(
+        document.getElementById("result-score-" + player),
+        GameState.result[player].score,
+        scoreSeconds,
+        run,
+      );
     });
   });
 
   for (let i = 0; i < rowCount; i++) {
     later(REVEAL.startDelay + i * REVEAL.rowGap, () => {
       ["p1", "p2"].forEach((player) => {
-        const li = document.querySelectorAll("#result-judge-" + player + " li")[i];
+        const li = document.querySelectorAll("#result-judge-" + player + " li")[
+          i
+        ];
         li.classList.remove("reveal-hide");
         li.classList.add("pop-in");
         const value = li.lastChild;
@@ -117,11 +122,14 @@ function finishReveal() {
   revealTimers = [];
 
   ["p1", "p2"].forEach((player) => {
-    document.getElementById("result-score-" + player).textContent = GameState.result[player].score;
-    document.querySelectorAll("#result-judge-" + player + " li").forEach((li) => {
-      li.classList.remove("reveal-hide");
-      li.lastChild.textContent = li.lastChild.dataset.final;
-    });
+    document.getElementById("result-score-" + player).textContent =
+      GameState.result[player].score;
+    document
+      .querySelectorAll("#result-judge-" + player + " li")
+      .forEach((li) => {
+        li.classList.remove("reveal-hide");
+        li.lastChild.textContent = li.lastChild.dataset.final;
+      });
   });
 
   if (revealEnding) revealEnding();
@@ -145,9 +153,9 @@ function startResultStage(run) {
   const begin = () => {
     if (run !== resultRun) return;
     FloatStage.start({
-      host: screen,       // 畫在結算頁
-      camera: "fixed",    // 攝影機固定在正面（位置在 float-stage.js 的 resultCamera）
-      mood: "suspense",   // 公布前舞台是暗的，只有光束在亂掃；公布後 focusPlayers 會打 spotlight、最後全部亮起來
+      host: screen, // 畫在結算頁
+      camera: "fixed", // 攝影機固定在正面（位置在 float-stage.js 的 resultCamera）
+      mood: "suspense", // 公布前舞台是暗的，只有光束在亂掃；公布後 focusPlayers 會打 spotlight、最後全部亮起來
       dancers: {
         p1: document.getElementById("result-dancer-p1"),
         p2: document.getElementById("result-dancer-p2"),

@@ -165,14 +165,39 @@ function makeBattleChart(song, duration) {
 }
 
 /* ============ 更新玩家分數 ============ */
+/* ============ 更新分數與 COMBO ============ */
 
 function updateBattleScore(player) {
   const result = GameState.result[player];
 
+  // 更新分數
   document.getElementById("battle-score-" + player).textContent = result.score;
 
-  document.getElementById("battle-combo-" + player).textContent =
-    result.combo > 1 ? result.combo + " COMBO" : "";
+  /* ============ COMBO 顯示 ============ */
+
+  const comboEl = document.getElementById("battle-combo-" + player);
+
+  if (result.combo > 1) {
+    // 只有連擊數字改變時才更新及播放動畫
+    if (comboEl.dataset.combo !== String(result.combo)) {
+      comboEl.innerHTML = `
+        <span class="combo-number">${result.combo}</span>
+        <span class="combo-label">combo</span>
+      `;
+
+      comboEl.dataset.combo = String(result.combo);
+
+      // 重新播放彈跳動畫
+      comboEl.classList.remove("pop");
+      void comboEl.offsetWidth;
+      comboEl.classList.add("pop");
+    }
+  } else {
+    // 連擊中斷時清除 COMBO
+    comboEl.textContent = "";
+    comboEl.dataset.combo = "";
+    comboEl.classList.remove("pop");
+  }
 }
 
 /* ============ 判定與計分 ============ */
@@ -196,10 +221,42 @@ function judgeBattle(player, type, now) {
     result.maxCombo = Math.max(result.maxCombo, result.combo);
   }
 
-  // 顯示 PERFECT / GREAT / GOOD / MISS
-  document.getElementById("battle-judge-" + player).textContent =
-    type.toUpperCase();
+  /* ============ 判定文字 ============ */
 
+  const judgeText = {
+    perfect: "超ㄅㄧㄤˋ",
+    great: "粉讚",
+    good: "哇哩勒",
+    miss: "阿娘喂",
+  };
+
+  const judgeEl = document.getElementById("battle-judge-" + player);
+
+  judgeEl.textContent = judgeText[type];
+
+  judgeEl.classList.remove("perfect", "great", "good", "miss");
+
+  judgeEl.classList.add(type);
+  /* ============ 判定文字隨機跳動 ============ */
+
+  // 隨機水平位置：左右 45px
+  const randomX = Math.random() * 90 - 45;
+
+  // 隨機垂直位置：上下 30px
+  const randomY = Math.random() * 60 - 30;
+
+  // 隨機旋轉角度：左右 10 度
+  const randomRotate = Math.random() * 20 - 10;
+
+  // 將隨機數值傳給 CSS
+  judgeEl.style.setProperty("--judge-x", randomX + "px");
+  judgeEl.style.setProperty("--judge-y", randomY + "px");
+  judgeEl.style.setProperty("--judge-rotate", randomRotate + "deg");
+
+  // 每次判定重新播放彈跳動畫
+  judgeEl.classList.remove("pop");
+  void judgeEl.offsetWidth;
+  judgeEl.classList.add("pop");
   // 判定文字顯示 0.65 秒
   battleFeedback[player] = now + 0.65;
 
@@ -415,19 +472,22 @@ function fadeToResult() {
   curtain.style.transition = `opacity ${FADE_OUT_SECONDS}s ease-in`;
   curtain.classList.add("show");
 
-  setTimeout(() => {
-    // 變暗的途中已經離開對戰頁了（例如回首頁）：把黑幕拿掉就好
-    if (run !== battleRun) {
-      curtain.classList.remove("show");
-      return;
-    }
-    goTo("result");
-    // 下一格再開始亮起來，結算頁才來得及準備好
-    requestAnimationFrame(() => {
-      curtain.style.transition = `opacity ${FADE_IN_SECONDS}s ease-out`;
-      curtain.classList.remove("show");
-    });
-  }, (FADE_OUT_SECONDS + BLACK_HOLD_SECONDS) * 1000);
+  setTimeout(
+    () => {
+      // 變暗的途中已經離開對戰頁了（例如回首頁）：把黑幕拿掉就好
+      if (run !== battleRun) {
+        curtain.classList.remove("show");
+        return;
+      }
+      goTo("result");
+      // 下一格再開始亮起來，結算頁才來得及準備好
+      requestAnimationFrame(() => {
+        curtain.style.transition = `opacity ${FADE_IN_SECONDS}s ease-out`;
+        curtain.classList.remove("show");
+      });
+    },
+    (FADE_OUT_SECONDS + BLACK_HOLD_SECONDS) * 1000,
+  );
 }
 
 /* ============ 遊戲更新迴圈 ============ */
