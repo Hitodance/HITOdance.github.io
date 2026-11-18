@@ -12,5 +12,8 @@ registerScreen("home", {
     if (e.code === "KeyD") {
       goTo("dictionary");
     }
+    if (e.code === "KeyC") {
+      goTo("credits");
+    }
   }
 });

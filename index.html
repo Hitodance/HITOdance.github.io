@@ -43,7 +43,7 @@
           src="assets/images/title.png"
           alt="要打去練舞室打"
         />
-        <p class="home-dict-hint"><span class="key">D</span> 死語詞典</p>
+        <p class="home-dict-hint"><span class="key">D</span> 死語詞典<br /><span class="key">C</span> 版權資訊</p>
         <p class="hint blink">按空白鍵進入遊戲</p>
       </section>
 
@@ -56,6 +56,36 @@
           <div class="dict-list" id="dict-list"></div>
         </div>
         <p class="hint">▲▼ 滑動　ESC 回首頁</p>
+      </section>
+
+      <!-- ============ 0.2 版權資訊（首頁按 C 進來） ============ -->
+      <section class="screen" id="screen-credits">
+        <!-- 跑馬燈標題（js/lib/marquee.js） -->
+        <h1 class="marquee-bar">版權資訊</h1>
+        <div class="credits-list">
+          <div class="credits-item">
+            <span class="credits-label">製作</span>
+            <p>陳弈晴　白彥庭　連緒<br /><small>JavaScript 課程期末作品</small></p>
+          </div>
+          <div class="credits-item">
+            <span class="credits-label">字體</span>
+            <p>教育部隸書（TW-MOE-Li）© 中華民國教育部<br /><small>採用 創用CC 姓名標示－禁止改作 3.0 臺灣版 授權</small></p>
+          </div>
+          <div class="credits-item">
+            <span class="credits-label">歌曲</span>
+            <p>〈姐姐〉謝金燕　〈我有我的young〉飛輪海<br /><small>歌曲片段與封面圖片的版權屬原權利人所有</small></p>
+          </div>
+          <div class="credits-item">
+            <span class="credits-label">背景音樂</span>
+            <p>本組自製</p>
+          </div>
+          <div class="credits-item">
+            <span class="credits-label">技術</span>
+            <p>MediaPipe Tasks Vision（Google）<br /><small>拍照去背與臉部偵測，採用 Apache License 2.0</small></p>
+          </div>
+        </div>
+        <p class="credits-note">本網站為課堂作業，僅供教學展示，非營利使用。</p>
+        <p class="hint">ESC 回首頁</p>
       </section>
 
       <!-- ============ 1.0 引言 ============ -->
@@ -277,6 +307,7 @@
     <!-- 背景音樂（要放在 router.js 後面） -->
     <script src="js/screens/home.js"></script>
     <script src="js/screens/dictionary.js"></script>
+    <script src="js/screens/credits.js"></script>
     <script src="js/screens/intro.js"></script>
     <script src="js/screens/photo.js"></script>
     <script src="js/screens/model.js"></script>

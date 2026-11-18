@@ -33,7 +33,7 @@ body {
   --black: #000000;
 
   /* 玩家代表色：P1 冷色、P2 暖色（想換就改這裡） */
-  --p1: var(--cyan);
+  --p1: var(--green);
   --p2: var(--pink);
 
   /* ---------- Typography System ---------- */
@@ -208,10 +208,10 @@ p.en {
   color: var(--black);
 }
 .p1 .player-tag {
-  background: var(--grad-cool);
+  background: var(--green);
 }
 .p2 .player-tag {
-  background: var(--grad-warm);
+  background: var(--pink);
 }
 
 /* ---------- 3D 小人的 canvas（建模、對戰、結算共用） ----------

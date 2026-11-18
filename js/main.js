@@ -2,10 +2,21 @@
    main.js — 啟動：畫布縮放 + 決定一開始顯示哪個畫面
    ========================================================= */
 
-// 讓 1920×1080 的畫布等比例縮放到塞滿視窗
+// 畫布（1920×1080）要怎麼放進視窗：
+//   "stretch" = 左右、上下各自縮放，剛好塞滿整個視窗，不會有黑邊
+//               （螢幕不是 16:9 的話整個畫面會稍微被拉長或壓扁）
+//   "fit"     = 等比例縮放，畫面不變形，但螢幕不是 16:9 的話旁邊會有黑邊
+const STAGE_FIT = "stretch";
+
 function resizeStage() {
-  const scale = Math.min(window.innerWidth / 1920, window.innerHeight / 1080);
-  document.getElementById("stage").style.setProperty("--stage-scale", scale);
+  let scaleX = window.innerWidth / 1920;
+  let scaleY = window.innerHeight / 1080;
+  if (STAGE_FIT === "fit") {
+    scaleX = Math.min(scaleX, scaleY);
+    scaleY = scaleX;
+  }
+  document.getElementById("stage").style.transform =
+    "translate(-50%, -50%) scale(" + scaleX + ", " + scaleY + ")";
 }
 window.addEventListener("resize", resizeStage);
 resizeStage();

@@ -28,10 +28,15 @@
   }
 }
 .home-dict-hint {
+  /* 右下角的「D 死語詞典」「C 版權資訊」上下疊在一起 */
   position: absolute;
   right: 80px;
   bottom: 90px;
-  font-size: var(--zh-p);
+  font-size: calc(var(--zh-p) * 0.8); /* 0.8 = 原本字的 80%，想再小就調小 */
+  line-height: 2.3; /* 兩行之間的距離 */
+}
+.home-dict-hint .key {
+  line-height: 1.3; /* 按鍵框本身的高度，不跟著行距變高 */
 }
 #screen-home .hint {
   bottom: 150px;
@@ -78,6 +83,46 @@
   color: var(--gray);
 }
 
+/* ============ 0.2 版權資訊 ============ */
+.credits-list {
+  position: absolute;
+  left: 220px;
+  right: 220px;
+  top: 170px;
+}
+.credits-item {
+  display: flex;
+  align-items: center;
+  gap: 40px;
+  min-height: 130px;
+  border-bottom: 2px solid rgba(255, 255, 255, 0.25);
+  font-size: var(--zh-p);
+  line-height: 1.5;
+}
+.credits-item small {
+  font-size: 0.75em;
+  color: var(--gray);
+}
+/* 左邊的項目名稱：跟死語詞典的字一樣是霓虹燈管 */
+.credits-label {
+  flex: 0 0 300px;
+  font-size: var(--zh-h1);
+  font-weight: 700;
+  color: #ffe4fb;
+  -webkit-text-stroke: 5px #ff2df1;
+  paint-order: stroke fill;
+  filter: drop-shadow(0 0 5px #ff00ff) drop-shadow(0 0 14px #ff00ff);
+}
+.credits-note {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 160px;
+  text-align: center;
+  font-size: calc(var(--zh-p) * 0.8);
+  color: var(--gray);
+}
+
 /* ============ 1.0 引言 ============ */
 .intro-text {
   position: absolute;
@@ -106,10 +151,13 @@
   display: inline-block;
   font-size: 180px; /* 想更大就改這個 */
   font-weight: 500;
-  background: var(--green);
-  -webkit-background-clip: text;
-  background-clip: text;
-  color: transparent;
+  /* 霓虹燈管（跟死語詞典的死語同一種效果，顏色維持綠色）：
+     筆畫中間淡綠白色的亮芯、邊緣螢光綠、外面一圈綠色的光。
+     想換成跟死語詞典一樣的桃紅色：#ffe4fb、#ff2df1、#ff00ff 這三個顏色換回去就好 */
+  color: #eaffef; /* 燈管中間的亮芯 */
+  -webkit-text-stroke: 11px #00ff40; /* 燈管邊緣，字比較大所以邊也比較粗 */
+  paint-order: stroke fill;
+  filter: drop-shadow(0 0 8px #00ff40) drop-shadow(0 0 26px #00ff40); /* 外面的光暈 */
   /* 先彈出來（joy-pop），彈完開始一直晃（joy-wander，7 秒一圈，想晃快一點就改小） */
   animation:
     joy-pop 0.5s cubic-bezier(0.2, 1.7, 0.4, 1) both,
