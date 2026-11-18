@@ -200,6 +200,9 @@
 
       <!-- ============ 5.0 對戰 ============ -->
       <section class="screen" id="screen-battle">
+        <!-- 3D 電子花車舞台（js/lib/float-stage.js 畫的，3.0 選「電子花車」舞台時才會出現） -->
+        <canvas class="float-stage" id="battle-float"></canvas>
+
         <!-- 上方：分數與歌曲進度 -->
         <div class="battle-top">
           <div class="score p1">
@@ -270,11 +273,11 @@
 
       <!-- ============ 6.0 結算 ============ -->
       <section class="screen" id="screen-result">
+        <!-- 彩帶（3D 電子花車的結算頁才會出現）。3D 舞台的畫布會被搬到這一頁的最底層 -->
+        <canvas class="confetti" id="result-confetti" width="1920" height="1080"></canvas>
         <!-- 跑馬燈標題（js/lib/marquee.js） -->
         <h1 class="marquee-bar">結算</h1>
         <p class="result-winner" id="result-winner"></p>
-        <!-- 兩個人成績外面的粉紅霓虹框（跟選擇頁的圖片框同一張圖） -->
-        <div class="result-frame"></div>
 
         <div class="result-col p1">
           <canvas class="dancer" id="result-dancer-p1"></canvas>
@@ -289,6 +292,9 @@
 
         <p class="hint blink">按空白鍵回到主畫面</p>
       </section>
+
+      <!-- 換頁用的黑幕（對戰結束時漸暗用，js/screens/battle.js 的 fadeToResult） -->
+      <div class="fade-curtain" id="fade-curtain"></div>
     </div>
 
     <!-- JS 載入順序很重要：資料 → 狀態 → 換頁系統 → 工具（lib）→ 各畫面 → 啟動 -->
@@ -316,5 +322,16 @@
     <script src="js/screens/battle.js"></script>
     <script src="js/screens/result.js"></script>
     <script src="js/main.js"></script>
+
+    <!-- 3D 電子花車舞台：three.js 從網路載入。載不到的話對戰頁照樣能玩，只是沒有 3D 舞台 -->
+    <script type="importmap">
+      {
+        "imports": {
+          "three": "https://cdn.jsdelivr.net/npm/three@0.170.0/build/three.module.js",
+          "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.170.0/examples/jsm/"
+        }
+      }
+    </script>
+    <script type="module" src="js/lib/float-stage.js"></script>
   </body>
 </html>

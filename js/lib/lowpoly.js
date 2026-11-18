@@ -14,8 +14,10 @@
      "dance"  跳舞（對戰頁），舞步在下面的 DANCE_MOVES
      "win"    舉手歡呼（結算頁贏家）
      "lose"   垂頭喪氣（結算頁輸家）
+     "kneel"  跪在地上、頭垂下來偶爾抽一下（3D 電子花車結算頁的輸家）
      "idle"   站著輕輕晃
    viewer.kick()：小人抖一下（對戰時按到按鍵用）
+   viewer.setView(角度)：從側面看小人（對戰頁的 3D 舞台鏡頭轉動時用，0 = 正面）
 
    想調整的東西都集中在最上面：
      LOOK         解析度、抖動、節奏
@@ -819,6 +821,7 @@ const LowPoly = (function () {
       play: function () {},
       stop: function () {},
       kick: function () {},
+      setView: function () {},
     };
   }
 
@@ -829,7 +832,8 @@ const LowPoly = (function () {
     canvas.width = LOOK.pixelWidth;
     canvas.height = LOOK.pixelHeight;
 
-    const gl = canvas.getContext("webgl", { alpha: true, antialias: false });
+    // preserveDrawingBuffer：讓 3D 舞台（float-stage.js）可以把這張 canvas 當貼圖讀走
+    const gl = canvas.getContext("webgl", { alpha: true, antialias: false, preserveDrawingBuffer: true });
     if (!gl) {
       console.warn("這個瀏覽器開不了 WebGL，3D 小人不會顯示");
       return dummyViewer();
@@ -921,6 +925,7 @@ const LowPoly = (function () {
     let startTime = 0;
     let frameId = 0;
     let kickTime = -10;
+    let viewYaw = 0;          // 鏡頭從哪個角度看（setView）
     // 兩個人從不同的舞步開始跳，才不會動作一模一樣
     const danceOffset =
       player === "p2" ? Math.floor(DANCE_TIMELINE.length / 2) : 0;
@@ -978,6 +983,17 @@ const LowPoly = (function () {
         p.armRRaise = 2.6 - Math.sin(beat * 2) * 0.3;
         p.armLElbow = 0.3;
         p.armRElbow = 0.3;
+      } else if (mode === "kneel") {
+        // 跪下：大腿垂直、小腿往後平貼地面（legBend 和 legLift 一正一負剛好互相抵消）
+        const sob = Math.max(0, Math.sin(t * 5)) * Math.max(0, Math.sin(t * 1.3));   // 偶爾抽一下
+        p = makePose({
+          legLBend: 1.96, legLLift: -1.96, legRBend: 1.96, legRLift: -1.96,
+          legLSpread: 0.12, legRSpread: 0.12,
+          hunch: 0.45 + sob * 0.08, headNod: 0.7 + sob * 0.1,
+          armLRaise: 0.25, armLFwd: 0.55, armLElbow: 0.35,
+          armRRaise: 0.25, armRFwd: 0.55, armRElbow: 0.35
+        });
+        p.headTilt = Math.sin(t * 0.9) * 0.08;
       } else if (mode === "lose") {
         p = makePose({
           hunch: 0.4,
@@ -1044,7 +1060,7 @@ const LowPoly = (function () {
       );
       root = matTranslate(root, 0, MODEL.height * 0.45, 0); // 以身體中心縮放、旋轉
       root = matScale(root, p.scale);
-      root = matRotateY(root, p.turn);
+      root = matRotateY(root, p.turn + viewYaw);
       // 最後一個數字：頭往前探、鼻子很長的時候把人往後挪一點，轉圈時才不會轉出畫面
       root = matTranslate(
         root,
@@ -1142,6 +1158,9 @@ const LowPoly = (function () {
       },
       kick: function () {
         kickTime = (performance.now() - startTime) / 1000;
+      },
+      setView: function (yaw) {
+        viewYaw = yaw || 0;
       },
     };
   }

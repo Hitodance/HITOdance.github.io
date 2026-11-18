@@ -395,8 +395,39 @@ function finishBattle() {
     }
   }
 
-  // 進入結算畫面
-  goTo("result");
+  // 不再接受按鍵
+  battlePlaying = false;
+
+  // 畫面漸漸變暗 → 進入結算畫面 → 再慢慢亮起來
+  fadeToResult();
+}
+
+/* ============ 對戰結束：漸暗轉場 ============ */
+
+const FADE_OUT_SECONDS = 1.5; // 變暗要幾秒
+const BLACK_HOLD_SECONDS = 1; // 全黑之後停幾秒才進結算頁
+const FADE_IN_SECONDS = 1.0; // 結算頁亮起來要幾秒
+
+function fadeToResult() {
+  const curtain = document.getElementById("fade-curtain");
+  const run = battleRun;
+
+  curtain.style.transition = `opacity ${FADE_OUT_SECONDS}s ease-in`;
+  curtain.classList.add("show");
+
+  setTimeout(() => {
+    // 變暗的途中已經離開對戰頁了（例如回首頁）：把黑幕拿掉就好
+    if (run !== battleRun) {
+      curtain.classList.remove("show");
+      return;
+    }
+    goTo("result");
+    // 下一格再開始亮起來，結算頁才來得及準備好
+    requestAnimationFrame(() => {
+      curtain.style.transition = `opacity ${FADE_IN_SECONDS}s ease-out`;
+      curtain.classList.remove("show");
+    });
+  }, (FADE_OUT_SECONDS + BLACK_HOLD_SECONDS) * 1000);
 }
 
 /* ============ 遊戲更新迴圈 ============ */
@@ -475,6 +506,52 @@ async function startBattle(run) {
   battleTick();
 }
 
+/* ============ 3D 電子花車舞台 ============ */
+
+// 3.0 選到「電子花車」（data.js 裡 scene: "float"）才用 3D 舞台。
+// 開發小技巧：直接用 #battle 跳進來測試（還沒選舞台）時也會顯示，方便看效果
+function wantsFloatStage() {
+  return !GameState.stage || GameState.stage.scene === "float";
+}
+
+function startFloatStage(run) {
+  const screen = document.getElementById("screen-battle");
+  screen.classList.remove("has-float");
+  if (!wantsFloatStage()) return;
+
+  const begin = () => {
+    if (run !== battleRun) return; // 已經離開對戰頁了
+    FloatStage.start({
+      host: screen, // 畫在對戰頁
+      camera: "tour", // 照 float-stage.js 的 shots 運鏡
+      bpm: GameState.song?.bpm || 120,
+      dancers: {
+        p1: document.getElementById("battle-dancer-p1"),
+        p2: document.getElementById("battle-dancer-p2"),
+      },
+      viewers: battleDancers,
+    })
+      .then(() => {
+        if (run === battleRun) screen.classList.add("has-float");
+      })
+      .catch((error) => {
+        console.warn("3D 舞台開不起來，改用原本的畫面", error);
+      });
+  };
+
+  // three.js 和模型是從網路／檔案載入的，可能還沒到：等它好了再開始
+  if (window.FloatStage) {
+    begin();
+  } else {
+    window.addEventListener("floatstage-ready", begin, { once: true });
+  }
+}
+
+function stopFloatStage() {
+  if (window.FloatStage) FloatStage.stop();
+  document.getElementById("screen-battle").classList.remove("has-float");
+}
+
 /* ============ 對戰畫面流程 ============ */
 
 registerScreen("battle", {
@@ -532,6 +609,9 @@ registerScreen("battle", {
       battleDancers[player].play("idle");
     }
 
+    // 3D 電子花車舞台（3.0 選到「電子花車」才會出現）
+    startFloatStage(run);
+
     // 開始倒數
     let count = BATTLE_COUNTDOWN;
 
@@ -562,6 +642,8 @@ registerScreen("battle", {
     cancelAnimationFrame(battleFrame);
 
     battleCountdownEl.textContent = "";
+
+    stopFloatStage();
 
     for (const player of battlePlayers) {
       battleDancers[player].stop();

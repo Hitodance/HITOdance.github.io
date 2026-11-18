@@ -685,6 +685,22 @@
   right: 15px;
 }
 
+/* 3D 電子花車舞台：蓋滿整個畫面，在其他東西後面。
+   有花車的時候小人站到舞台上，原本左右兩邊的小人就藏起來（但要繼續畫，舞台會拿它當貼圖） */
+.float-stage {
+  display: none;
+  position: absolute;
+  inset: 0;
+  width: 1920px;
+  height: 1080px;
+}
+.screen.has-float .float-stage {
+  display: block;
+}
+#screen-battle.has-float .dancer {
+  opacity: 0;
+}
+
 /* ============ 固定箭頭位置 ============ */
 
 .lane {
@@ -975,7 +991,7 @@
 }
 
 /* ============ 6.0 結算 ============ */
-/* 跑馬燈下面的所有東西（勝負文字、霓虹框、框裡兩個人的小人和成績）一起往下移多少。
+/* 跑馬燈下面的所有東西（勝負文字、兩個人的小人和成績）一起往下移多少。
    0 的時候它們剛好在跑馬燈和「按空白鍵回到主畫面」中間上下置中；正的往下、負的往上 */
 #screen-result {
   --result-shift: 0px;
@@ -994,19 +1010,6 @@
   -webkit-text-stroke: 5px #ff2df1; /* 燈管邊緣的桃紅色 */
   paint-order: stroke fill;
   filter: drop-shadow(0 0 5px #ff00ff) drop-shadow(0 0 14px #ff00ff); /* 外面的光暈 */
-}
-/* 兩個人成績外面的粉紅霓虹框：用的是選擇頁的 frame.png。
-   用 border-image 把圖切成九宮格，四個角維持原樣、邊只往長的方向拉，
-   所以框變寬的時候，那幾條線的粗細和間距不會跟著變形 */
-.result-frame {
-  position: absolute;
-  left: 95px;
-  right: 95px;
-  top: calc(268px + var(--result-shift));
-  height: 584px;
-  border: 85px solid transparent;
-  border-image: url("../assets/images/select/frame.png") 170 / 85px stretch;
-  pointer-events: none;
 }
 .result-col {
   position: absolute;
@@ -1051,4 +1054,86 @@
   padding: 8px 0;
   font-size: var(--en-p);
   border-bottom: 1px solid rgba(255, 255, 255, 0.25);
+}
+
+/* ---- 3D 電子花車的結算頁：中間留給舞台（小人在舞台上），分數放兩側 ---- */
+#screen-result.has-float .result-col {
+  top: calc(355px + var(--result-shift));
+  width: 360px;
+  grid-template-columns: 1fr;
+  padding: 28px 32px;
+  background: rgba(6, 8, 30, 0.55);
+  border-radius: 24px;
+}
+#screen-result.has-float .result-col.p1 {
+  left: 200px;
+}
+#screen-result.has-float .result-col.p2 {
+  right: 200px;
+}
+/* 原本的 2D 小人藏起來（還是要繼續畫，舞台會拿它當貼圖） */
+#screen-result.has-float .result-col .dancer {
+  position: absolute;
+  opacity: 0;
+  pointer-events: none;
+}
+#screen-result.has-float .result-winner {
+  text-shadow: 0 0 30px var(--pink), 0 4px 12px rgba(0, 0, 0, 0.6);
+}
+
+/* ---- 結算頁的揭曉動畫（js/screens/result.js 的 REVEAL） ---- */
+.result-judge li.reveal-hide {
+  visibility: hidden;
+}
+.result-judge li.pop-in {
+  animation: pop-in 0.35s ease-out;
+}
+@keyframes pop-in {
+  from {
+    opacity: 0;
+    transform: translateX(-24px) scale(0.9);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+.result-winner.winner-pop {
+  animation: winner-pop 0.7s cubic-bezier(0.2, 1.6, 0.4, 1);
+}
+@keyframes winner-pop {
+  from {
+    opacity: 0;
+    transform: scale(2.4);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* 換頁用的黑幕：加上 .show 就慢慢變黑（速度寫在 battle.js 的 FADE_OUT_SECONDS / FADE_IN_SECONDS） */
+.fade-curtain {
+  position: absolute;
+  inset: 0;
+  background: #000;
+  opacity: 0;
+  pointer-events: none;
+  z-index: 100;
+}
+.fade-curtain.show {
+  opacity: 1;
+}
+
+/* 從上面掉下來的彩帶（js/screens/result.js 畫的） */
+.confetti {
+  display: none;
+  position: absolute;
+  inset: 0;
+  width: 1920px;
+  height: 1080px;
+  pointer-events: none;
+}
+#screen-result.has-float .confetti {
+  display: block;
 }
