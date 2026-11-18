@@ -914,7 +914,9 @@ function createSelectScreen(options) {
 
   return {
     onEnter: function () {
-      selected = 0;
+      // 一進來停在哪一個：之前選過的話停在那個（例如從音樂選擇按 ESC 回來），沒選過就停在第一個
+      const chosen = options.current ? items.indexOf(options.current()) : -1;
+      selected = chosen >= 0 ? chosen : 0;
       states.forEach(function (state) { state.open = 0; });   // 一進來，中間那個從花苞開始開花
       render(true);
       cancelAnimationFrame(frameId);
@@ -929,6 +931,7 @@ function createSelectScreen(options) {
       if (e.code === "ArrowDown") { move(1); }
       if (e.code === "ArrowUp")   { move(-1); }
       if (e.code === "Space")     { options.onConfirm(items[selected]); }
+      if (e.code === "Escape" && options.onBack) { options.onBack(); }   // 上一頁
     }
   };
 }
@@ -940,6 +943,7 @@ registerScreen("stage", createSelectScreen({
   previewId: "stage-preview",
   frameId: "stage-frame",
   descId: "stage-desc",
+  current: function () { return GameState.stage; },   // 回到這頁時停在之前選的舞台
   onConfirm: function (stage) {
     GameState.stage = stage;
     goTo("music");
@@ -953,8 +957,12 @@ registerScreen("music", createSelectScreen({
   previewId: "music-preview",
   frameId: "music-frame",
   descId: "music-desc",
+  current: function () { return GameState.song; },
   onConfirm: function (song) {
     GameState.song = song;
     goTo("loading");
+  },
+  onBack: function () {
+    goTo("stage");   // 按 ESC 回到舞台選擇，重新選舞台
   }
 }));

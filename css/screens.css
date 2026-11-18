@@ -925,18 +925,36 @@
 }
 
 /* ============ 6.0 結算 ============ */
+/* 跑馬燈下面的所有東西（勝負文字、霓虹框、框裡兩個人的小人和成績）一起往下移多少。
+   0 的時候它們剛好在跑馬燈和「按空白鍵回到主畫面」中間上下置中；正的往下、負的往上 */
+#screen-result {
+  --result-shift: 0px;
+}
 .result-winner {
   position: absolute;
   left: 0;
   right: 0;
-  top: 80px;
+  top: calc(160px + var(--result-shift));
   text-align: center;
   font-size: var(--zh-h1);
   font-weight: 700;
 }
+/* 兩個人成績外面的粉紅霓虹框：用的是選擇頁的 frame.png。
+   用 border-image 把圖切成九宮格，四個角維持原樣、邊只往長的方向拉，
+   所以框變寬的時候，那幾條線的粗細和間距不會跟著變形 */
+.result-frame {
+  position: absolute;
+  left: 95px;
+  right: 95px;
+  top: calc(268px + var(--result-shift));
+  height: 584px;
+  border: 85px solid transparent;
+  border-image: url("../assets/images/select/frame.png") 170 / 85px stretch;
+  pointer-events: none;
+}
 .result-col {
   position: absolute;
-  top: 230px;
+  top: calc(355px + var(--result-shift));
   width: 740px;
   display: grid;
   grid-template-columns: 330px 1fr;
@@ -944,10 +962,10 @@
   align-items: start;
 }
 .result-col.p1 {
-  left: 170px;
+  left: 200px;
 }
 .result-col.p2 {
-  right: 170px;
+  right: 200px;
 }
 .result-col .dancer {
   grid-row: span 2;

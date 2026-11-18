@@ -134,7 +134,7 @@
           <p><span></span></p>
         </div>
         <div class="select-wheel" id="music-wheel"></div>
-        <p class="hint">▲▼ 選擇　空白鍵決定</p>
+        <p class="hint">▲▼ 選擇　空白鍵決定　ESC上一頁</p>
       </section>
 
       <!-- ============ Loading ============ -->
@@ -239,8 +239,11 @@
 
       <!-- ============ 6.0 結算 ============ -->
       <section class="screen" id="screen-result">
-        <h1 class="screen-title">結算</h1>
+        <!-- 跑馬燈標題（js/lib/marquee.js） -->
+        <h1 class="marquee-bar">結算</h1>
         <p class="result-winner" id="result-winner"></p>
+        <!-- 兩個人成績外面的粉紅霓虹框（跟選擇頁的圖片框同一張圖） -->
+        <div class="result-frame"></div>
 
         <div class="result-col p1">
           <canvas class="dancer" id="result-dancer-p1"></canvas>
