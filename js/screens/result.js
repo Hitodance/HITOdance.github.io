@@ -42,11 +42,11 @@ registerScreen("result", {
     const score2 = GameState.result.p2.score;
     const winnerEl = document.getElementById("result-winner");
     if (score1 > score2) {
-      winnerEl.textContent = "P1 WIN!";
+      winnerEl.textContent = "煞氣ㄟ舞王乂P1乂";
       resultDancers.p1.play("win");
       resultDancers.p2.play("lose");
     } else if (score2 > score1) {
-      winnerEl.textContent = "P2 WIN!";
+      winnerEl.textContent = "煞氣ㄟ舞王乂P2乂";
       resultDancers.p1.play("lose");
       resultDancers.p2.play("win");
     } else {

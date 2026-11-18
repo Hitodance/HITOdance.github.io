@@ -932,14 +932,20 @@
 #screen-result {
   --result-shift: 0px;
 }
+/* 勝負文字（煞氣ㄟ舞王乂P1乂）：跟死語詞典的死語一樣的霓虹燈管
+   筆畫中間淡粉白色、邊緣桃紅色、外面一圈桃紅色的光 */
 .result-winner {
   position: absolute;
   left: 0;
   right: 0;
-  top: calc(160px + var(--result-shift));
+  top: calc(145px + var(--result-shift));
   text-align: center;
   font-size: var(--zh-h1);
   font-weight: 700;
+  color: #ffe4fb; /* 燈管中間的亮芯 */
+  -webkit-text-stroke: 5px #ff2df1; /* 燈管邊緣的桃紅色 */
+  paint-order: stroke fill;
+  filter: drop-shadow(0 0 5px #ff00ff) drop-shadow(0 0 14px #ff00ff); /* 外面的光暈 */
 }
 /* 兩個人成績外面的粉紅霓虹框：用的是選擇頁的 frame.png。
    用 border-image 把圖切成九宮格，四個角維持原樣、邊只往長的方向拉，
