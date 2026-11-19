@@ -95,7 +95,12 @@ const CONFIG = {
     x: 2.2,                 // 離舞台中線多遠（P1 在左、P2 在右）
     y: -1.2,                // 前後（負的 = 往舞台前緣；背板在 1.0、舞台前緣在 -3.7）
     height: 1.9,            // 小人多高（公尺）
-    lift: 0.11  ,             // 整個人往上抬多少（覺得陷進舞台就調大、飄起來就調小）
+    lift: 0,                // 整個人往上抬多少（覺得陷進舞台就調大、飄起來就調小）
+    // 影子（數字是照實際跳舞時腳的範圍量出來的：腳最多往左右張 0.54 公尺、腳底最多畫到地板下 0.2 公尺）
+    shadowSize: 0.72,       // 影子左右多寬（半徑，公尺）；腳跑出左右就調大、太寬就調小
+    shadowDepth: 0.16,      // 影子前後多長（以「畫面上看起來」的高度算，公尺）；腳跑出前後就調大
+    shadowForward: 0.09,    // 影子中心比腳底低多少（畫面上，公尺）；影子在腳後面就調大、跑到腳前面就調小
+    shadowOpacity: 0.6,     // 影子中間最深的地方多黑（0 ~ 1）
   },
 
   // 攝影機運鏡：照順序一個一個鏡頭飛過去，最後一個會接回第一個（一直循環）
@@ -674,21 +679,27 @@ function attachDancer(player, canvas, viewer) {
     const planeW = planeH * canvas.width / canvas.height;
     const geo = new THREE.PlaneGeometry(planeW, planeH);
     geo.translate(0, planeH * (0.5 - 0.156), 0);   // 原點移到腳底
+    // depthTest: false + renderOrder：小人最後才畫、不被地板擋住。
+    // 小人只是一張直立的圖，跨步或蹲下時腳會畫到「地板以下」，原本會被舞台面切掉，看起來像腳陷進地板
     const mesh = new THREE.Mesh(geo, new THREE.MeshBasicMaterial({
-      map: texture, alphaTest: 0.5, side: THREE.DoubleSide,
+      map: texture, alphaTest: 0.5, side: THREE.DoubleSide, depthTest: false,
+      transparent: true,   // 要算「半透明」那一批，才會排在影子、光束後面畫 → 圖層：舞台 → 影子 → 小人
     }));
+    mesh.renderOrder = 10;
     scene.add(mesh);
 
     // 腳下的影子
     const shadow = new THREE.Mesh(
-      new THREE.CircleGeometry(0.6, 24),
-      new THREE.MeshBasicMaterial({ color: 0x000000, transparent: true, opacity: 0.45, depthWrite: false }),
+      new THREE.PlaneGeometry(1.2, 1.2),   // 半徑 0.6 的圓，大小由 placeShadow 用 shadowSize 調
+      new THREE.MeshBasicMaterial({ map: softShadowTexture(), color: 0x000000, transparent: true,
+        opacity: CONFIG.dancer.shadowOpacity, depthWrite: false }),
     );
     shadow.rotation.x = -Math.PI / 2;
     shadow.scale.set(1, 0.55, 1);
     scene.add(shadow);
 
-    d = dancers[player] = { mesh: mesh, texture: texture, canvas: canvas, shadow: shadow, builtHeight: CONFIG.dancer.height };
+    d = dancers[player] = { mesh: mesh, texture: texture, canvas: canvas, shadow: shadow, builtHeight: CONFIG.dancer.height,
+      planeW: planeW, planeH: planeH };
   }
   // 對戰頁和結算頁的小人是不同的 canvas：換頁時換成這一頁的小人
   if (d.canvas !== canvas) {
@@ -819,6 +830,44 @@ function updateCamera(t) {
   }
 }
 
+// 柔邊影子：中間最深、往外慢慢淡掉，腳踩到邊緣也不會有一條硬線
+let shadowTex = null;
+function softShadowTexture() {
+  if (shadowTex) return shadowTex;
+  const c = document.createElement("canvas");
+  c.width = c.height = 128;
+  const g = c.getContext("2d");
+  const grad = g.createRadialGradient(64, 64, 0, 64, 64, 64);
+  grad.addColorStop(0, "rgba(255,255,255,1)");
+  grad.addColorStop(0.35, "rgba(255,255,255,0.85)");
+  grad.addColorStop(0.7, "rgba(255,255,255,0.35)");
+  grad.addColorStop(1, "rgba(255,255,255,0)");
+  g.fillStyle = grad;
+  g.fillRect(0, 0, 128, 128);
+  shadowTex = new THREE.CanvasTexture(c);
+  return shadowTex;
+}
+
+// ---------- 影子：固定在小人腳下，不跟著動作移動 ----------
+function placeShadow(d, yaw) {
+  const cfg = SC().dancer;
+  const pick = (k) => (cfg[k] === undefined ? CONFIG.dancer[k] : cfg[k]);
+  const s = d.mesh.scale.x;   // 小人有放大縮小的話影子也跟著
+  // 小人是一張直立的圖：腳畫在圖上「比腳底低 x 公尺」的地方，在地板上其實是「往鏡頭方向 x × 距離 ÷ 高度」。
+  // 照現在鏡頭的距離和高度換算，不管鏡頭怎麼飛，影子看起來都會剛好包住腳
+  const dx = camera.position.x - d.mesh.position.x;
+  const dz = camera.position.z - d.mesh.position.z;
+  const dist = Math.sqrt(dx * dx + dz * dz);
+  const height = Math.max(0.3, camera.position.y - d.mesh.position.y);
+  const k = Math.min(8, dist / height);
+  const fwd = pick("shadowForward") * s * k;
+  const depth = Math.min(2, pick("shadowDepth") * s * k);
+  d.shadow.position.x = d.mesh.position.x + Math.sin(yaw) * fwd;   // 往鏡頭方向挪
+  d.shadow.position.z = d.mesh.position.z + Math.cos(yaw) * fwd;
+  d.shadow.rotation.z = yaw;                                        // 橢圓的長邊永遠橫的
+  d.shadow.scale.set(pick("shadowSize") * s / 0.6, depth / 0.6, 1);
+}
+
 // ---------- 每一格 ----------
 function frame(now) {
   if (!running) return;
@@ -838,6 +887,7 @@ function frame(now) {
     d.mesh.rotation.y = yaw;
     if (d.viewer && d.viewer.setView) d.viewer.setView(-yaw);
     d.texture.needsUpdate = true;
+    placeShadow(d, yaw);
   });
 
   composer.render();

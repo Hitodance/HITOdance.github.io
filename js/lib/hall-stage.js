@@ -54,7 +54,7 @@ export const HALL = {
   },
 
   // 3D 小人站的位置（舞池中間，地板高度 0）
-  dancer: { x: 1.6, y: -2.0, height: 1.9, lift: 0.1 },   // lift：整個人往上抬多少（覺得陷進地板就調大）
+  dancer: { x: 1.6, y: -2.0, height: 1.9, lift: 0 },   // lift：整個人往上抬多少（覺得陷進地板就調大）
 
   // 對戰頁運鏡（跟 float-stage.js 的 camera 一樣寫法）
   camera: {
