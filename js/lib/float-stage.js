@@ -46,6 +46,16 @@ const CONFIG = {
   artBrightness: 0.8,      // 圖稿看板的亮度（不要超過 1，不然圖會被光暈糊掉）
   rainbowTubes: true,       // 兩支「直立燈管」做成彩虹燈
 
+  // 「要打去練舞室打」logo：貼在下層背板正中間（Blender 座標，跟 dancer 一樣）
+  logo: {
+    image: "assets/stage/hall/sign.png",   // 跟復古舞廳共用同一張霓虹招牌圖
+    width: 3.6,             // 寬度（公尺）；高度照圖的比例自動算
+    x: 0,                   // 左右（0 = 正中間）
+    y: 0.9,                 // 前後：背板在 1.0，數字越小越往前（不要大於 0.93，不然會被燈泡擋住）
+    z: 2.8,                 // 高度：背板從 1.3 到 3.34
+    brightness: 0.95,       // 亮度（太亮會被光暈糊掉）
+  },
+
   // LED 一閃一閃（燈泡、霓虹燈條、樓梯燈條、彩虹燈管都會）
   blink: {
     on: true,               // false = 不閃，一直亮著
@@ -264,6 +274,7 @@ function addBlinkAttributes(mesh) {
 }
 
 const artMaterials = [];   // 圖稿看板的材質（暗場時一起變暗）
+let logoMaterial = null;    // logo 的材質（暗場時一起變暗）
 
 function prepareModel(root) {
   const converted = new Map();   // 同一個材質只換一次
@@ -356,6 +367,29 @@ function buildFloatWorld(gltf) {
   prepareModel(model);
   group.add(model);
 
+  // logo 看板
+  if (CONFIG.logo && CONFIG.logo.image) {
+    const L = CONFIG.logo;
+    const logoMat = new THREE.MeshBasicMaterial({ transparent: true, depthWrite: false, toneMapped: false });
+    logoMat.color.setScalar(L.brightness);
+    const logoMesh = new THREE.Mesh(new THREE.PlaneGeometry(L.width, L.width * 265 / 999), logoMat);
+    logoMesh.position.copy(V(L.x, L.y, L.z));
+    logoMesh.renderOrder = 2;
+    logoMesh.visible = false;   // 圖載好才顯示，不然會先看到一塊白板
+    group.add(logoMesh);
+    new THREE.TextureLoader().load(L.image, function (tex) {
+      tex.colorSpace = THREE.SRGBColorSpace;
+      tex.anisotropy = 8;
+      logoMat.map = tex;
+      logoMesh.scale.y = (tex.image.height / tex.image.width) / (265 / 999);
+      logoMat.needsUpdate = true;
+      logoMesh.visible = true;
+    }, undefined, function () {
+      console.warn("logo 圖片載入失敗：" + L.image);
+    });
+    logoMaterial = logoMat;
+  }
+
   // 舞台面高度：從模型裡的「舞台地板」量出來，你在 Blender 改高度這裡也會跟著變
   let top = 1.3;
   const floor = model.getObjectByName("舞台地板");
@@ -375,6 +409,7 @@ function buildFloatWorld(gltf) {
     applyMaster: function (m) {
       blinkUniforms.uMaster.value = m;
       artMaterials.forEach((mat) => mat.color.setScalar(CONFIG.artBrightness * m));
+      if (logoMaterial) logoMaterial.color.setScalar(CONFIG.logo.brightness * m);
     },
     update: null,
   };
