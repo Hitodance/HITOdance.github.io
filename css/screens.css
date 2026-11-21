@@ -650,8 +650,8 @@
 .score {
   display: flex;
   align-items: center;
-  gap: 24px;
-  width: 520px;
+  gap: 20px;
+  width: 650px; /* 原本 520px */
 }
 .score.p2 {
   justify-content: flex-end;
@@ -661,13 +661,189 @@
   font-weight: 700;
   font-variant-numeric: tabular-nums;
 }
+
+/* ============ 對戰分數進度條 ============ */
+
+.battle-score-bar {
+  width: 450px; /* 原本 280px */
+  height: 26px;
+  flex-shrink: 0;
+
+  background: #101020;
+  border: 3px solid #ffffff;
+  border-radius: 8px;
+  overflow: hidden;
+
+  box-shadow:
+    0 0 6px #ffffff80,
+    inset 0 0 8px #000000;
+}
+
+/* ============ 分數條共用填色 ============ */
+
+.battle-score-fill {
+  width: 0%;
+  height: 100%;
+  transition: width 0.2s ease-out;
+}
+
+/* ============ P1 綠色漸層 ============ */
+
+.battle-score-bar.p1 .battle-score-fill {
+  background: linear-gradient(
+    90deg,
+    #008c35 0%,
+    /* 深綠 */ #00d84a 45%,
+    /* 亮綠 */ #00ff40 75%,
+    /* P1 螢光綠 */ #baff80 100% /* 淺綠高光 */
+  );
+
+  box-shadow: 0 0 15px #00ff40;
+}
+
+/* ============ P2 粉色漸層 ============ */
+
+.battle-score-bar.p2 .battle-score-fill {
+  background: linear-gradient(
+    270deg,
+    #9c006c 0%,
+    /* 深桃紅 */ #e600a8 45%,
+    /* 亮桃紅 */ #ff00ff 75%,
+    /* P2 螢光粉 */ #ff9ef4 100% /* 淺粉高光 */
+  );
+
+  box-shadow: 0 0 15px #ff00ff;
+}
+
+/* P2 從右往左填滿 */
+.battle-score-bar.p2 {
+  display: flex;
+  justify-content: flex-end;
+}
+
+/* ============ 分數條霓虹發光特效 ============ */
+
+/* P1：綠色霓虹外框 */
+.battle-score-bar.p1 {
+  border-color: #00ff40;
+
+  box-shadow:
+    0 0 6px #00ff40,
+    0 0 15px #00ff4080,
+    0 0 28px #00ff4050,
+    inset 0 0 8px #00ff4060;
+
+  animation: score-glow-green 1.8s ease-in-out infinite alternate;
+}
+
+/* P2：粉色霓虹外框 */
+.battle-score-bar.p2 {
+  border-color: #ff00ff;
+
+  box-shadow:
+    0 0 6px #ff00ff,
+    0 0 15px #ff00ff80,
+    0 0 28px #ff00ff50,
+    inset 0 0 8px #ff00ff60;
+
+  animation: score-glow-pink 1.8s ease-in-out infinite alternate;
+}
+
+/* 填色區域：微微閃爍 */
+.battle-score-fill {
+  position: relative;
+  overflow: hidden;
+
+  animation: score-fill-pulse 1.5s ease-in-out infinite alternate;
+}
+
+/* 填色上方掃過一道白光 */
+.battle-score-fill::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: -50%;
+  width: 35%;
+
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.75),
+    transparent
+  );
+
+  transform: skewX(-25deg);
+  animation: score-shine 2.5s linear infinite;
+}
+
+/* ============ 動畫設定 ============ */
+
+/* P1 綠色呼吸光 */
+@keyframes score-glow-green {
+  from {
+    box-shadow:
+      0 0 5px #00ff40,
+      0 0 12px #00ff4060;
+  }
+
+  to {
+    box-shadow:
+      0 0 12px #00ff40,
+      0 0 25px #00ff40aa,
+      0 0 40px #00ff4060;
+  }
+}
+
+/* P2 粉色呼吸光 */
+@keyframes score-glow-pink {
+  from {
+    box-shadow:
+      0 0 5px #ff00ff,
+      0 0 12px #ff00ff60;
+  }
+
+  to {
+    box-shadow:
+      0 0 12px #ff00ff,
+      0 0 25px #ff00ffaa,
+      0 0 40px #ff00ff60;
+  }
+}
+
+/* 填色亮度變化 */
+@keyframes score-fill-pulse {
+  from {
+    filter: brightness(0.85);
+  }
+
+  to {
+    filter: brightness(1.4);
+  }
+}
+
+/* 白光從左掃到右 */
+@keyframes score-shine {
+  from {
+    left: -50%;
+  }
+
+  to {
+    left: 150%;
+  }
+}
+
+/* ============ 中間歌曲名稱 ============ */
+
 .song-info {
   flex: 1;
   text-align: center;
+  min-width: 0;
 }
+
 .song-info p {
   font-size: var(--zh-p);
-  margin-bottom: 12px;
+  margin-bottom: 0;
 }
 .time-bar {
   height: 10px;
@@ -1280,4 +1456,3 @@
 .fade-curtain.show {
   opacity: 1;
 }
-

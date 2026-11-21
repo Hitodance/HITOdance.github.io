@@ -4,6 +4,9 @@
 
 const BATTLE_COUNTDOWN = 3;
 const DEFAULT_DURATION = 20;
+/* ============ 對戰理論滿分 ============ */
+
+let battleMaxScore = 1;
 
 // 箭頭從底部移動到判定線的秒數
 const NOTE_TRAVEL = 1.8;
@@ -47,8 +50,6 @@ const KEY_MAP = {
 /* ============ 取得 HTML 元件 ============ */
 
 const battleCountdownEl = document.getElementById("battle-countdown");
-
-const battleTimeFillEl = document.getElementById("battle-time-fill");
 
 const battleDancers = {
   p1: LowPoly.create(document.getElementById("battle-dancer-p1"), "p1"),
@@ -170,8 +171,21 @@ function makeBattleChart(song, duration) {
 function updateBattleScore(player) {
   const result = GameState.result[player];
 
-  // 更新分數
+  // 更新數字分數
   document.getElementById("battle-score-" + player).textContent = result.score;
+
+  /* ============ 更新分數進度條 ============ */
+
+  const percent = Math.min(
+    100,
+    Math.max(0, (result.score / battleMaxScore) * 100),
+  );
+
+  const scoreFill = document.getElementById("battle-score-fill-" + player);
+
+  if (scoreFill) {
+    scoreFill.style.width = percent + "%";
+  }
 
   /* ============ COMBO 顯示 ============ */
 
@@ -500,11 +514,6 @@ function battleTick() {
   // 更新箭頭位置
   renderBattle(now);
 
-  // 更新歌曲進度條
-  const progress = Math.min(100, (now / battleDuration) * 100);
-
-  battleTimeFillEl.style.width = progress + "%";
-
   // 歌曲結束
   if (now >= battleDuration || battleAudio?.ended) {
     finishBattle();
@@ -541,6 +550,8 @@ async function startBattle(run) {
 
   // 建立歌曲譜面
   const chart = makeBattleChart(GameState.song, battleDuration);
+  // 每個音符 PERFECT = 100 分
+  battleMaxScore = Math.max(1, chart.length * 100);
 
   // P1、P2 使用相同的譜面
   for (const player of battlePlayers) {
@@ -646,9 +657,6 @@ registerScreen("battle", {
     // 顯示歌曲名稱
     document.getElementById("battle-song-name").textContent =
       song?.name || "TEST MODE";
-
-    // 進度條歸零
-    battleTimeFillEl.style.width = "0%";
 
     // 初始化兩位玩家
     for (const player of battlePlayers) {
