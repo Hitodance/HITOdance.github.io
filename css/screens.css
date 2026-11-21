@@ -660,20 +660,31 @@
   font-size: var(--en-h3);
   font-weight: 700;
   font-variant-numeric: tabular-nums;
+
+  min-width: 110px; /* 預留分數數字的空間 */
+  flex-shrink: 0; /* 避免分數變長時擠壓其他元素 */
+}
+
+.score.p2 .score-num {
+  text-align: right;
 }
 
 /* ============ 對戰分數進度條 ============ */
 
 .battle-score-bar {
-  width: 450px; /* 原本 280px */
+  width: 450px; /* 固定分數條總長度 */
+  min-width: 450px; /* 不允許縮小 */
+  max-width: 450px; /* 不允許變大 */
   height: 26px;
-  flex-shrink: 0;
+
+  flex: 0 0 450px; /* 不放大、不縮小，固定 450px */
 
   background: #101020;
   border: 3px solid #ffffff;
   border-radius: 8px;
   overflow: hidden;
 
+  box-sizing: border-box;
   box-shadow:
     0 0 6px #ffffff80,
     inset 0 0 8px #000000;
@@ -682,9 +693,13 @@
 /* ============ 分數條共用填色 ============ */
 
 .battle-score-fill {
-  width: 0%;
+  width: 0%; /* 一開始沒有分數 */
   height: 100%;
+  position: relative;
+  overflow: hidden;
+
   transition: width 0.2s ease-out;
+  animation: score-fill-pulse 1.5s ease-in-out infinite alternate;
 }
 
 /* ============ P1 綠色漸層 ============ */
