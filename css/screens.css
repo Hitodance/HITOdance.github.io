@@ -298,7 +298,7 @@
    圖都在 assets/images/select/，是從 AI 檔切出來的，位置也照 AI 檔。
    動畫怎麼觸發在 js/screens/select.js */
 
-/* 「▲▼ 選擇　空白鍵決定」往下移一點，才不會壓到說明框 */
+/* 「▲▼ 選擇空白鍵決定」往下移一點，才不會壓到說明框 */
 .select-screen .hint {
   bottom: 34px;
 }
@@ -643,26 +643,39 @@
   top: 40px;
   left: 80px;
   right: 80px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
+  height: 60px;
 }
+
+/* 固定左右玩家區塊，分數變長也不推動進度條 */
 .score {
-  display: flex;
+  position: absolute;
+  top: 0;
+  display: grid;
+  grid-template-columns: 50px 120px 450px;
+  column-gap: 16px;
   align-items: center;
-  gap: 20px;
-  width: 650px; /* 原本 520px */
+  width: 652px;
+  height: 60px;
 }
+
+.score.p1 {
+  left: 0;
+}
+
 .score.p2 {
-  justify-content: flex-end;
+  right: 0;
+  grid-template-columns: 450px 120px 50px;
 }
+
 .score-num {
+  display: block;
+  width: 120px;
+  min-width: 120px;
   font-size: var(--en-h3);
   font-weight: 700;
   font-variant-numeric: tabular-nums;
-
-  min-width: 110px; /* 預留分數數字的空間 */
-  flex-shrink: 0; /* 避免分數變長時擠壓其他元素 */
+  white-space: nowrap;
+  text-align: left;
 }
 
 .score.p2 .score-num {
@@ -851,15 +864,28 @@
 /* ============ 中間歌曲名稱 ============ */
 
 .song-info {
-  flex: 1;
+  position: absolute;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 350px;
+  height: 60px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   text-align: center;
-  min-width: 0;
+  pointer-events: none;
 }
 
 .song-info p {
   font-size: var(--zh-p);
-  margin-bottom: 0;
+  margin: 0;
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
+
 .time-bar {
   height: 10px;
   background: rgba(255, 255, 255, 0.25);
@@ -1470,4 +1496,90 @@
 }
 .fade-curtain.show {
   opacity: 1;
+}
+
+/* ============ 修正對戰分數與進度條重疊 ============ */
+
+/* P1 左側固定 */
+.battle-top .score.p1 {
+  left: 0;
+  grid-template-columns: 50px 150px 450px;
+  column-gap: 16px;
+  width: 682px;
+}
+
+/* P2 右側固定 */
+.battle-top .score.p2 {
+  right: 0;
+  grid-template-columns: 450px 150px 50px;
+  column-gap: 16px;
+  width: 682px;
+}
+
+/* 分數數字固定寬度 */
+.battle-top .score-num {
+  width: 150px;
+  min-width: 150px;
+  font-size: 56px;
+  line-height: 1;
+  white-space: nowrap;
+}
+
+/* P1 數字靠左 */
+.battle-top .score.p1 .score-num {
+  text-align: left;
+}
+
+/* P2 數字靠右 */
+.battle-top .score.p2 .score-num {
+  text-align: right;
+}
+
+/* ============ 修正 P1 / P2 玩家標籤位置 ============ */
+
+/* 只影響對戰畫面 */
+#screen-battle .battle-top .player-tag {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  margin: 0;
+  flex: none;
+}
+
+/* P1 固定在左邊 */
+#screen-battle .battle-top .score.p1 .player-tag {
+  left: 0;
+}
+
+/* P2 固定在右邊 */
+#screen-battle .battle-top .score.p2 .player-tag {
+  right: 0;
+}
+
+/* 讓標籤不再占用 Grid 欄位 */
+#screen-battle .battle-top .score {
+  display: flex;
+  align-items: center;
+}
+
+/* P1：分數、進度條固定位置 */
+#screen-battle .battle-top .score.p1 .score-num {
+  position: absolute;
+  left: 80px;
+}
+
+#screen-battle .battle-top .score.p1 .battle-score-bar {
+  position: absolute;
+  left: 220px;
+}
+
+/* P2：進度條、分數固定位置 */
+#screen-battle .battle-top .score.p2 .battle-score-bar {
+  position: absolute;
+  right: 220px;
+}
+
+#screen-battle .battle-top .score.p2 .score-num {
+  position: absolute;
+  right: 80px;
 }
