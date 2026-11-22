@@ -1198,7 +1198,7 @@
 /* ============ 判定文字樣式 ============ */
 
 .battle-judge {
-  top: 27%;
+  top: 35%;
   font-size: 100px;
   font-weight: 500;
   letter-spacing: 2px;
@@ -1284,7 +1284,7 @@
 /* ============ COMBO 整體位置 ============ */
 
 .combo {
-  top: 45%; /* 垂直位置 */
+  top: 55%;
   z-index: 11;
 
   display: flex;
