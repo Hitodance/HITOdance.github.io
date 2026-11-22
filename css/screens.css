@@ -56,6 +56,10 @@
 .dict-list {
   transition: transform 0.3s ease-out;
 }
+/* 長按自動滑的時候改成等速，看起來才是連續滑下去（0.11s 跟 dictionary.js 的 HOLD_SPEED 一樣） */
+.dict-list.holding {
+  transition: transform 0.11s linear;
+}
 .dict-item {
   height: 150px; /* 改高度的話 dictionary.js 的 ITEM_HEIGHT 也要改 */
   display: flex;
@@ -74,6 +78,11 @@
   -webkit-text-stroke: 5px #ff2df1; /* 燈管邊緣的桃紅色，數字越大邊越粗 */
   paint-order: stroke fill; /* 先畫桃紅邊、再把亮芯疊在上面，字才不會變細 */
   filter: drop-shadow(0 0 5px #ff00ff) drop-shadow(0 0 14px #ff00ff); /* 外面的光暈 */
+}
+/* 超過 5 個字的死語（例如「香蕉你個芭樂」）字縮小一點，才不會換行 */
+.dict-word.long {
+  font-size: calc(var(--zh-h1) * 0.8);
+  white-space: nowrap;
 }
 .dict-meaning {
   flex: 1;
@@ -292,6 +301,14 @@
 .model-stand .player-tag {
   position: relative;
   top: -45px;
+}
+/* 小人外面一圈霓虹光暈（跟死語詞典的大字一樣，沿著小人的形狀發光）
+   P1 綠色、P2 粉紅色；三層 drop-shadow 從裡到外：貼邊的亮線 → 中光暈 → 外圍散光，數字越大越散 */
+.model-stand.p1 .dancer {
+  filter: drop-shadow(0 0 3px #00ff40) drop-shadow(0 0 10px #00ff40) drop-shadow(0 0 24px #00ff40);
+}
+.model-stand.p2 .dancer {
+  filter: drop-shadow(0 0 3px #ff2df1) drop-shadow(0 0 10px #ff00ff) drop-shadow(0 0 24px #ff00ff);
 }
 
 /* ============ 3.0 / 4.0 舞台、音樂選擇（共用） ============
