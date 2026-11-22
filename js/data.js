@@ -12,9 +12,14 @@ const DEAD_WORDS = [
     example: "你這個造型超ㄅㄧㄤˋ的！",
   },
   {
-    word: "啊娘喂",
+    word: "阿娘喂",
     meaning: "我的媽呀（驚訝的時候喊）",
-    example: "啊娘喂～怎麼這麼貴！",
+    example: "阿娘喂～怎麼這麼貴！",
+  },
+  {
+    word: "哇哩勒",
+    meaning: "傻眼、無言時的感嘆詞，類似「我的天啊」",
+    example: "哇哩勒，作業明天就要交了？！",
   },
   {
     word: "LKK",
@@ -40,11 +45,6 @@ const DEAD_WORDS = [
     word: "Orz",
     meaning: "一個人跪倒在地，表示無奈、佩服",
     example: "報告明天要交…Orz",
-  },
-  {
-    word: "啾咪",
-    meaning: "裝可愛的語尾（親一下的聲音）",
-    example: "明天見囉，啾咪～",
   },
 ];
 
@@ -95,6 +95,16 @@ const SONGS = [
     duration: 20,
     bpm: 127,
     firstBeat: 0.14,
+    previewStart: 0,
+  },
+  {
+    name: "愛你",
+    artist: "王心凌",
+    image: "assets/images/song_love.jpg",
+    src: "assets/audio/song_love_pre.mp3",
+    duration: 20,
+    bpm: 100,
+    firstBeat: 0.39,
     previewStart: 0,
   },
 ];

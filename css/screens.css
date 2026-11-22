@@ -1409,11 +1409,49 @@
   line-height: 1;
   font-variant-numeric: tabular-nums;
 }
+/* 總分：霓虹燈管字（中間亮芯、邊緣玩家顏色、外面一圈光） */
 .result-col.p1 .result-score {
-  color: var(--p1);
+  color: #eaffef; /* 亮芯 */
+  -webkit-text-stroke: 5px var(--p1);
+  paint-order: stroke fill;
+  filter: drop-shadow(0 0 5px var(--p1)) drop-shadow(0 0 14px var(--p1));
 }
 .result-col.p2 .result-score {
-  color: var(--p2);
+  color: #ffe4fb; /* 亮芯 */
+  -webkit-text-stroke: 5px #ff2df1;
+  paint-order: stroke fill;
+  filter: drop-shadow(0 0 5px var(--p2)) drop-shadow(0 0 14px var(--p2));
+}
+
+/* MAX COMBO 貼紙：跟勝負標題一樣的霓虹燈管字，歪歪的貼在分數框下面，最後才跳出來 */
+.result-combo {
+  position: absolute;
+  left: 50%;
+  bottom: -62px; /* 往下越多越靠近框的下緣外面 */
+  white-space: nowrap;
+  font-size: calc(var(--zh-h1) * 0.7); /* 0.7 = 標題字的 70% */
+  font-weight: 700;
+  color: #ffe4fb;
+  -webkit-text-stroke: 4px #ff2df1;
+  paint-order: stroke fill;
+  filter: drop-shadow(0 0 4px #ff00ff) drop-shadow(0 0 12px #ff00ff);
+  transform: translateX(-50%) rotate(-8deg); /* -8deg = 往左上歪的角度 */
+  opacity: 0;
+  pointer-events: none;
+}
+.result-combo.show {
+  opacity: 1;
+  animation: combo-slap 0.5s cubic-bezier(0.2, 1.6, 0.4, 1);
+}
+@keyframes combo-slap {
+  from {
+    opacity: 0;
+    transform: translateX(-50%) rotate(-20deg) scale(2.2);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(-50%) rotate(-8deg) scale(1);
+  }
 }
 .result-judge {
   list-style: none;
@@ -1433,8 +1471,85 @@
   width: 360px;
   grid-template-columns: 1fr;
   padding: 28px 32px;
-  background: rgba(6, 8, 30, 0.55);
-  border-radius: 24px;
+  /* 框裡面的黑底：0.6 = 不透明度（0 透明 ~ 1 全黑） */
+  background: rgba(0, 0, 0, 0.6);
+  border-radius: 34px;
+  box-shadow: 0 0 0 10px rgba(0, 0, 0, 0.6); /* 黑底再往外補 10px，剛好填到最裡面那條線 */
+}
+/* 分數框的三條白線外框（assets/images/result/frame.svg），外面一圈綠色光暈 */
+#screen-result.has-float .result-col::before {
+  content: "";
+  position: absolute;
+  /* 讓最裡面那條線剛好圍在分數外面 10px，框會跟著分數的高度伸縮 */
+  left: -40px;
+  width: 440px;
+  top: calc(-13.3px - 16.57%);
+  height: calc(24.6px + 122.94%);
+  background: url("../assets/images/result/frame.svg") center / 100% 100% no-repeat;
+  filter: drop-shadow(0 0 3px var(--green)) drop-shadow(0 0 10px var(--green)) drop-shadow(0 0 18px var(--green)); /* 綠色光暈：數字越大越散 */
+  pointer-events: none;
+}
+/* 贏的人的框上面才有蓮花（js/screens/result.js 公布勝負時加上 .winner；平手都不加） */
+#screen-result.has-float .result-col::after {
+  content: "";
+  position: absolute;
+  left: -40px;
+  width: 440px;
+  top: calc(-54.6px - 6.22%);
+  height: 514px;
+  background: url("../assets/images/result/lotus.svg") center top / 100% auto no-repeat;
+  opacity: 0;
+  transform-origin: 50% 8%;
+  filter: drop-shadow(0 0 3px var(--green)) drop-shadow(0 0 10px var(--green)); /* 蓮花的綠色光暈 */
+  pointer-events: none;
+}
+/* 蓮花也是「被扔進來」：從超大、轉著砸到框上 → 彈一下停住；框被砸到會震一下 */
+#screen-result.has-float .result-col.winner::after {
+  opacity: 1;
+  animation: lotus-throw 0.9s both;
+}
+#screen-result.has-float .result-col.winner {
+  animation: frame-hit 0.45s 0.4s; /* 0.4s 後（蓮花砸到的那一刻）框震一下 */
+}
+@keyframes lotus-throw {
+  0% {
+    opacity: 0;
+    transform: translateY(-320px) rotate(160deg) scale(6);
+    animation-timing-function: cubic-bezier(0.55, 0, 1, 0.45);
+  }
+  45% {
+    opacity: 1;
+    transform: translateY(0) rotate(-10deg) scale(0.75);
+    animation-timing-function: ease-out;
+  }
+  62% {
+    transform: translateY(-14px) rotate(7deg) scale(1.2);
+  }
+  78% {
+    transform: rotate(-3deg) scale(0.93);
+  }
+  90% {
+    transform: rotate(1deg) scale(1.04);
+  }
+  100% {
+    opacity: 1;
+    transform: none;
+  }
+}
+@keyframes frame-hit {
+  0%,
+  100% {
+    transform: none;
+  }
+  20% {
+    transform: translate(-8px, 6px) rotate(-1deg);
+  }
+  45% {
+    transform: translate(7px, -4px) rotate(0.8deg);
+  }
+  70% {
+    transform: translate(-4px, 2px);
+  }
 }
 #screen-result.has-float .result-col.p1 {
   left: 200px;
@@ -1471,17 +1586,34 @@
     transform: none;
   }
 }
+/* 勝負標題「被扔進來」：從超大、歪歪的從上面砸下來 → 撞到定位彈一下 → 晃兩下停住
+   0.9s = 整段動畫的時間；想更誇張就把 0% 的 scale(7) 調大 */
 .result-winner.winner-pop {
-  animation: winner-pop 0.7s cubic-bezier(0.2, 1.6, 0.4, 1);
+  animation: winner-throw 0.9s both;
 }
-@keyframes winner-pop {
-  from {
+@keyframes winner-throw {
+  0% {
     opacity: 0;
-    transform: scale(2.4);
+    transform: translateY(-260px) rotate(-28deg) scale(7);
+    animation-timing-function: cubic-bezier(0.55, 0, 1, 0.45); /* 越掉越快 */
   }
-  to {
+  45% {
     opacity: 1;
-    transform: scale(1);
+    transform: translateY(0) rotate(6deg) scale(0.82); /* 砸到 */
+    animation-timing-function: ease-out;
+  }
+  62% {
+    transform: translateY(-10px) rotate(-4deg) scale(1.15); /* 彈起來 */
+  }
+  78% {
+    transform: translateY(0) rotate(2deg) scale(0.95);
+  }
+  90% {
+    transform: rotate(-1deg) scale(1.03);
+  }
+  100% {
+    opacity: 1;
+    transform: none;
   }
 }
 

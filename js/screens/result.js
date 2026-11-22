@@ -3,9 +3,10 @@
 
    揭曉的順序（時間都在下面的 REVEAL 改）：
      1. 小人先站著，總分從 0 一路往上加
-     2. 同時 PERFECT / GREAT / GOOD / MISS / MAX COMBO 一行一行跳出來
+     2. 同時 PERFECT / GREAT / GOOD / MISS 一行一行跳出來
      3. 都加完之後停一下，公布獲勝者
      4. 這時候小人才開始跳舞（贏）或跪下（輸）
+     5. 最後 MAX COMBO 像貼紙一樣歪歪的貼在分數框下面
    揭曉途中按空白鍵 = 直接跳到最後結果；揭曉完再按空白鍵才回首頁
 
    3.0 選「電子花車」或「復古舞廳」的話：
@@ -27,6 +28,7 @@ const REVEAL = {
   scoreExtra: 0.6, // 總分比最後一行再多加幾秒才停
   winnerDelay: 0.8, // 分數加完之後停幾秒才公布獲勝者
 };
+const COMBO_DELAY = 1.0; // 公布獲勝者之後再過幾秒，MAX COMBO 貼紙才跳出來
 
 // 把畫面上的數字從 0 加到 to（一開始快、最後慢慢停）
 function countUp(el, to, seconds, run) {
@@ -50,8 +52,11 @@ function showResult(player) {
     ["粉讚", result.great],
     ["哇哩勒", result.good],
     ["阿娘喂", result.miss],
-    ["MAX COMBO", result.maxCombo],
   ];
+  // MAX COMBO 不放在清單裡，最後才像貼紙一樣貼在分數框下面
+  const combo = document.getElementById("result-combo-" + player);
+  combo.textContent = "MAX COMBO " + result.maxCombo;
+  combo.classList.remove("show");
   const list = document.getElementById("result-judge-" + player);
   list.textContent = "";
   rows.forEach(function (row) {
@@ -134,6 +139,14 @@ function finishReveal() {
 
   if (revealEnding) revealEnding();
   document.querySelector("#screen-result .hint").classList.remove("hidden");
+
+  // 最後：MAX COMBO 貼紙「啪」一下貼上去（COMBO_DELAY 秒之後）
+  const run = resultRun;
+  setTimeout(() => {
+    if (run !== resultRun) return;
+    document.getElementById("result-combo-p1").classList.add("show");
+    document.getElementById("result-combo-p2").classList.add("show");
+  }, COMBO_DELAY * 1000);
 }
 
 function stopReveal() {
@@ -202,6 +215,11 @@ registerScreen("result", {
     const winnerEl = document.getElementById("result-winner");
     winnerEl.textContent = "";
     winnerEl.classList.remove("winner-pop");
+    // 贏的人的分數框上面才會長出蓮花（css/screens.css 的 .result-col.winner）
+    const col1 = document.querySelector("#screen-result .result-col.p1");
+    const col2 = document.querySelector("#screen-result .result-col.p2");
+    col1.classList.remove("winner");
+    col2.classList.remove("winner");
 
     // 揭曉前：兩個人先站著輕輕晃
     resultDancers.p1.play("idle");
@@ -211,10 +229,12 @@ registerScreen("result", {
     revealEnding = () => {
       if (score1 > score2) {
         winnerEl.textContent = "煞氣ㄟ舞王乂P1乂";
+        col1.classList.add("winner");
         resultDancers.p1.play(winMove);
         resultDancers.p2.play(loseMove);
       } else if (score2 > score1) {
         winnerEl.textContent = "煞氣ㄟ舞王乂P2乂";
+        col2.classList.add("winner");
         resultDancers.p1.play(loseMove);
         resultDancers.p2.play(winMove);
       } else {
@@ -244,11 +264,11 @@ registerScreen("result", {
 
   onKey: function (e) {
     if (e.code !== "Space") return;
-    // 還在揭曉：先跳到最後結果；已經揭曉完：回首頁
+    // 還在揭曉：先跳到最後結果；已經揭曉完：進死語詞典（在詞典按 ESC 或空白鍵就回首頁）
     if (!revealDone) {
       finishReveal();
     } else {
-      goTo("home");
+      goTo("dictionary");
     }
   },
 });
