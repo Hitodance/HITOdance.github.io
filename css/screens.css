@@ -1485,8 +1485,10 @@
   width: 440px;
   top: calc(-13.3px - 16.57%);
   height: calc(24.6px + 122.94%);
-  background: url("../assets/images/result/frame.svg") center / 100% 100% no-repeat;
-  filter: drop-shadow(0 0 3px var(--green)) drop-shadow(0 0 10px var(--green)) drop-shadow(0 0 18px var(--green)); /* 綠色光暈：數字越大越散 */
+  background: url("../assets/images/result/frame.svg") center / 100% 100%
+    no-repeat;
+  filter: drop-shadow(0 0 3px var(--green)) drop-shadow(0 0 10px var(--green))
+    drop-shadow(0 0 18px var(--green)); /* 綠色光暈：數字越大越散 */
   pointer-events: none;
 }
 /* 贏的人的框上面才有蓮花（js/screens/result.js 公布勝負時加上 .winner；平手都不加） */
@@ -1497,7 +1499,8 @@
   width: 440px;
   top: calc(-54.6px - 6.22%);
   height: 514px;
-  background: url("../assets/images/result/lotus.svg") center top / 100% auto no-repeat;
+  background: url("../assets/images/result/lotus.svg") center top / 100% auto
+    no-repeat;
   opacity: 0;
   transform-origin: 50% 8%;
   filter: drop-shadow(0 0 3px var(--green)) drop-shadow(0 0 10px var(--green)); /* 蓮花的綠色光暈 */
@@ -1667,51 +1670,109 @@
   text-align: right;
 }
 
-/* ============ 修正 P1 / P2 玩家標籤位置 ============ */
+/* ============ 對戰 HUD：上下雙層排版 ============ */
 
-/* 只影響對戰畫面 */
-#screen-battle .battle-top .player-tag {
+#screen-battle .battle-top {
   position: absolute;
-  top: 50%;
-  transform: translateY(-50%);
-  margin: 0;
-  flex: none;
+  top: 30px;
+  left: 80px;
+  right: 80px;
+  height: 100px;
+  display: block;
 }
 
-/* P1 固定在左邊 */
-#screen-battle .battle-top .score.p1 .player-tag {
+/* 玩家區塊固定左右 */
+#screen-battle .battle-top .score {
+  position: absolute;
+  top: 0;
+  width: 650px;
+  height: 100px;
+  display: block;
+}
+
+#screen-battle .battle-top .score.p1 {
   left: 0;
 }
 
-/* P2 固定在右邊 */
-#screen-battle .battle-top .score.p2 .player-tag {
+#screen-battle .battle-top .score.p2 {
   right: 0;
 }
 
-/* 讓標籤不再占用 Grid 欄位 */
-#screen-battle .battle-top .score {
-  display: flex;
-  align-items: center;
+/* 玩家標籤 */
+#screen-battle .battle-top .player-tag {
+  position: absolute;
+  top: 0;
+  transform: none;
 }
 
-/* P1：分數、進度條固定位置 */
+#screen-battle .battle-top .score.p1 .player-tag {
+  left: 0;
+  right: auto;
+}
+
+#screen-battle .battle-top .score.p2 .player-tag {
+  right: 0;
+  left: auto;
+}
+
+/* 分數放在上排 */
+#screen-battle .battle-top .score-num {
+  position: absolute;
+  top: 0;
+  width: 180px;
+  min-width: 180px;
+  line-height: 60px;
+  font-size: 56px;
+}
+
 #screen-battle .battle-top .score.p1 .score-num {
-  position: absolute;
-  left: 80px;
-}
-
-#screen-battle .battle-top .score.p1 .battle-score-bar {
-  position: absolute;
-  left: 220px;
-}
-
-/* P2：進度條、分數固定位置 */
-#screen-battle .battle-top .score.p2 .battle-score-bar {
-  position: absolute;
-  right: 220px;
+  left: 100px;
+  right: auto;
+  text-align: left;
 }
 
 #screen-battle .battle-top .score.p2 .score-num {
+  right: 100px;
+  left: auto;
+  text-align: right;
+}
+
+/* 分數條放在下排 */
+#screen-battle .battle-top .battle-score-bar {
   position: absolute;
-  right: 80px;
+  top: 72px;
+  width: 550px;
+  min-width: 550px;
+  max-width: 550px;
+  height: 22px;
+}
+
+#screen-battle .battle-top .score.p1 .battle-score-bar {
+  left: 0;
+  right: auto;
+}
+
+#screen-battle .battle-top .score.p2 .battle-score-bar {
+  right: 0;
+  left: auto;
+}
+
+/* 歌曲名稱獨立置中 */
+#screen-battle .battle-top .song-info {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  width: 360px;
+  height: 60px;
+  transform: translateX(-50%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+}
+
+#screen-battle .battle-top .song-info p {
+  margin: 0;
+  white-space: nowrap;
+  text-shadow: 0 2px 8px #000000;
 }
