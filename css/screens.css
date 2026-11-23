@@ -1807,3 +1807,37 @@
 .word-drop.show {
   display: block;
 }
+
+/* ============ 最後 5 秒藏分數（battle.js 的 HIDE_SCORE_SECONDS） ============ */
+/* 雙方分數條變彩虹、慢慢跑滿，讓玩家到結算頁才知道誰贏 */
+#screen-battle.score-hidden .battle-score-fill {
+  width: 100% !important;
+  background: linear-gradient(
+    90deg,
+    #ff0040,
+    #ff8a00,
+    #ffe600,
+    #00ff40,
+    #00e5ff,
+    #3d5bff,
+    #ff00ff,
+    #ff0040
+  ) !important;
+  background-size: 200% 100% !important;
+  box-shadow: 0 0 18px #ffffff !important;
+  transition: width 0.8s ease-out;
+  animation: score-rainbow-flow 1.2s linear infinite;
+}
+
+#screen-battle.score-hidden .battle-score-bar {
+  border-color: #ffffff;
+}
+
+@keyframes score-rainbow-flow {
+  from {
+    background-position: 0% 0;
+  }
+  to {
+    background-position: 200% 0;
+  }
+}

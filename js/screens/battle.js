@@ -8,6 +8,10 @@ const DEFAULT_DURATION = 20;
 
 let battleMaxScore = 1;
 
+// 歌曲剩最後幾秒時，把雙方分數藏起來（分數條變彩虹跑滿、分數變 ????），結算頁才揭曉勝負
+const HIDE_SCORE_SECONDS = 5;
+let battleScoreHidden = false;
+
 // 箭頭從底部移動到判定線的秒數
 const NOTE_TRAVEL = 1.8;
 
@@ -171,20 +175,23 @@ function makeBattleChart(song, duration) {
 function updateBattleScore(player) {
   const result = GameState.result[player];
 
-  // 更新數字分數
-  document.getElementById("battle-score-" + player).textContent = result.score;
+  // 最後幾秒：分數藏起來，不更新數字和分數條（只更新 COMBO）
+  if (!battleScoreHidden) {
+    // 更新數字分數
+    document.getElementById("battle-score-" + player).textContent = result.score;
 
-  /* ============ 更新分數進度條 ============ */
+    /* ============ 更新分數進度條 ============ */
 
-  const percent = Math.min(
-    100,
-    Math.max(0, (result.score / battleMaxScore) * 100),
-  );
+    const percent = Math.min(
+      100,
+      Math.max(0, (result.score / battleMaxScore) * 100),
+    );
 
-  const scoreFill = document.getElementById("battle-score-fill-" + player);
+    const scoreFill = document.getElementById("battle-score-fill-" + player);
 
-  if (scoreFill) {
-    scoreFill.style.width = percent + "%";
+    if (scoreFill) {
+      scoreFill.style.width = percent + "%";
+    }
   }
 
   /* ============ COMBO 顯示 ============ */
@@ -504,6 +511,19 @@ function fadeToResult() {
   );
 }
 
+/* ============ 最後幾秒藏分數 ============ */
+
+// 分數條變彩虹、跑滿，分數變 ????（樣式在 css/screens.css 的 .score-hidden）
+function setBattleScoreHidden(hidden) {
+  battleScoreHidden = hidden;
+  document.getElementById("screen-battle").classList.toggle("score-hidden", hidden);
+  if (hidden) {
+    for (const player of battlePlayers) {
+      document.getElementById("battle-score-" + player).textContent = "????";
+    }
+  }
+}
+
 /* ============ 遊戲更新迴圈 ============ */
 
 function battleTick() {
@@ -513,6 +533,11 @@ function battleTick() {
 
   // 更新箭頭位置
   renderBattle(now);
+
+  // 剩最後 HIDE_SCORE_SECONDS 秒：藏起分數
+  if (!battleScoreHidden && now >= battleDuration - HIDE_SCORE_SECONDS) {
+    setBattleScoreHidden(true);
+  }
 
   // 歌曲結束
   if (now >= battleDuration || battleAudio?.ended) {
@@ -636,6 +661,9 @@ registerScreen("battle", {
     const run = ++battleRun;
 
     resetResult();
+
+    // 新的一局：分數重新顯示
+    setBattleScoreHidden(false);
 
     battlePlaying = false;
 
