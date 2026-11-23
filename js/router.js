@@ -7,6 +7,18 @@
    換頁一律用 goTo("畫面名稱")
    ========================================================= */
 
+/* ---------- 按空白鍵進到下一頁的進場音效 ---------- */
+const ENTER_SOUND = "assets/audio/sfx_enter.mp3";   // 想換別的音效就換這個檔案
+const ENTER_SOUND_VOLUME = 0.2;                     // 音量（0 ~ 1）
+const enterSound = new Audio(ENTER_SOUND);
+enterSound.preload = "auto";
+
+function playEnterSound() {
+  const sound = enterSound.cloneNode();
+  sound.volume = ENTER_SOUND_VOLUME;
+  sound.play().catch(function () {});
+}
+
 const Screens = {};          // 所有登記過的畫面
 let currentScreen = "";      // 目前在哪個畫面
 
@@ -52,7 +64,18 @@ document.addEventListener("keydown", function (e) {
   }
 
   const screen = Screens[currentScreen];
+  const before = currentScreen;
+  const dropping = typeof WordDrop !== "undefined" && WordDrop.isPlaying();
   if (screen && screen.onKey) {
     screen.onKey(e);
+  }
+
+  // 按空白鍵之後換了頁（或開始播死語掉下來的轉場）→ 播進場音效
+  // ESC 回上一頁、時間到自動換頁都不會響
+  if (e.code === "Space") {
+    const startedDrop = !dropping && typeof WordDrop !== "undefined" && WordDrop.isPlaying();
+    if (currentScreen !== before || startedDrop) {
+      playEnterSound();
+    }
   }
 });

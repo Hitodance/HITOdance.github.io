@@ -6,6 +6,19 @@
 
 const DESC_CLOSE_MS = 260;  // 說明框縮起來要多久（要跟 CSS 的 .select-desc transition 差不多）
 
+/* ---------- 按上下鍵換選項的音效 ---------- */
+const SELECT_SOUND = "assets/audio/sfx_select.mp3";   // 想換別的音效就換這個檔案
+const SELECT_SOUND_VOLUME = 1;                      // 音量（0 ~ 1）
+const selectSound = new Audio(SELECT_SOUND);
+selectSound.preload = "auto";
+
+function playSelectSound() {
+  // 每次複製一份來播，連續快速按的時候聲音才不會被切掉
+  const sound = selectSound.cloneNode();
+  sound.volume = SELECT_SOUND_VOLUME;
+  sound.play().catch(function () {});
+}
+
 /* ---------- 右邊選項框的設定 ----------
    停下來的時候（被選到的大框、沒被選到的小框），畫的是從 AI 檔切出來的原圖，造型跟 AI 檔一模一樣：
      assets/images/select/option-big-lines.png  大框的線條和蓮花
@@ -909,6 +922,7 @@ function createSelectScreen(options) {
 
   function move(step) {
     selected = (selected + step + items.length) % items.length;
+    playSelectSound();    // 喀答一聲
     spinBoost();          // 條紋猛轉一下
     render();
   }
