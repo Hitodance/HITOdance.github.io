@@ -82,6 +82,9 @@ registerScreen("dictionary", {
   onKey: function (e) {
     if (e.code === "ArrowDown") { startHold(1); }
     if (e.code === "ArrowUp")   { startHold(-1); }
-    if (e.code === "Escape" || e.code === "Space") { goTo("home"); }
+    if (e.code === "Escape" || e.code === "Space") {
+      stopHold();
+      WordDrop.play(function () { goTo("home"); }, "green"); // 死語掉下來的轉場（螢光綠）
+    }
   }
 });

@@ -268,7 +268,7 @@ registerScreen("result", {
     if (!revealDone) {
       finishReveal();
     } else {
-      goTo("dictionary");
+      WordDrop.play(function () { goTo("dictionary"); }); // 死語掉下來的轉場（桃紅）
     }
   },
 });

@@ -69,7 +69,7 @@
           <div class="credits-item">
             <span class="credits-label">製作</span>
             <p>
-              陳弈晴　白彥庭　連緒<br /><small>JavaScript 課程期末作品</small>
+              陳弈晴　白彥庭　連緒<br /><small>使用者介面課程期末作品</small>
             </p>
           </div>
           <div class="credits-item">
@@ -83,14 +83,14 @@
           <div class="credits-item">
             <span class="credits-label">歌曲</span>
             <p>
-              〈姐姐〉謝金燕　〈我有我的young〉飛輪海　〈愛你〉王心凌<br /><small
+              〈姐姐〉謝金燕　〈我有我的young〉飛輪海　<br />〈愛你〉王心凌<br /><small
                 >歌曲片段與封面圖片的版權屬原權利人所有</small
               >
             </p>
           </div>
           <div class="credits-item">
             <span class="credits-label">背景音樂</span>
-            <p>本組自製</p>
+            <p>自製</p>
           </div>
           <div class="credits-item">
             <span class="credits-label">技術</span>
@@ -322,6 +322,14 @@
 
       <!-- 換頁用的黑幕（對戰結束時漸暗用，js/screens/battle.js 的 fadeToResult） -->
       <div class="fade-curtain" id="fade-curtain"></div>
+
+      <!-- 著裝完成 → 舞台選擇 的轉場：死語大字掉下來堆滿畫面，再整堆掉下去（js/lib/word-drop.js） -->
+      <canvas
+        class="word-drop"
+        id="word-drop"
+        width="1920"
+        height="1080"
+      ></canvas>
     </div>
 
     <!-- JS 載入順序很重要：資料 → 狀態 → 換頁系統 → 工具（lib）→ 各畫面 → 啟動 -->
@@ -343,6 +351,8 @@
     <script src="js/screens/credits.js"></script>
     <script src="js/screens/intro.js"></script>
     <script src="js/screens/photo.js"></script>
+    <script src="js/lib/word-drop.js"></script>
+    <!-- 死語掉下來的轉場 -->
     <script src="js/screens/model.js"></script>
     <script src="js/screens/select.js"></script>
     <script src="js/screens/loading.js"></script>

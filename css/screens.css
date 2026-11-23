@@ -1793,3 +1793,17 @@
   white-space: nowrap;
   text-shadow: 0 2px 8px #000000;
 }
+
+/* ============ 著裝完成 → 舞台選擇 的轉場（js/lib/word-drop.js） ============ */
+.word-drop {
+  position: absolute;
+  inset: 0;
+  width: 1920px;
+  height: 1080px;
+  z-index: 90; /* 蓋在所有畫面上面 */
+  pointer-events: none;
+  display: none;
+}
+.word-drop.show {
+  display: block;
+}

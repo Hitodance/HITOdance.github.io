@@ -10,7 +10,7 @@ registerScreen("home", {
       goTo("intro");
     }
     if (e.code === "KeyD") {
-      goTo("dictionary");
+      WordDrop.play(function () { goTo("dictionary"); }); // 死語掉下來的轉場（桃紅）
     }
     if (e.code === "KeyC") {
       goTo("credits");

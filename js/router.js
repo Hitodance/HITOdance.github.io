@@ -46,6 +46,11 @@ document.addEventListener("keydown", function (e) {
     return;
   }
 
+  // 死語掉下來的轉場還在播（js/lib/word-drop.js），先不接受按鍵
+  if (typeof WordDrop !== "undefined" && WordDrop.isPlaying()) {
+    return;
+  }
+
   const screen = Screens[currentScreen];
   if (screen && screen.onKey) {
     screen.onKey(e);

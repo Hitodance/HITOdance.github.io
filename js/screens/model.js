@@ -35,8 +35,13 @@ registerScreen("model", {
   },
 
   onKey: function (e) {
-    if (e.code === "Space" && modelReady) {
-      goTo("stage");
+    // 按空白鍵：死語大字掉下來堆滿畫面 → 整堆掉下去 → 露出舞台選擇頁（js/lib/word-drop.js）
+    if (e.code === "Space" && modelReady && !WordDrop.isPlaying()) {
+      modelReady = false;
+      modelHintEl.classList.add("hidden");
+      WordDrop.play(function () {
+        goTo("stage");
+      });
     }
   }
 });
