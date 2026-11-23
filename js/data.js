@@ -48,8 +48,8 @@ const DEAD_WORDS = [
   },
   {
     word: "KUSO",
-    meaning: "惡搞、無厘頭的搞笑（來自日文）",
-    example: "這支影片也太 KUSO 了吧！",
+    meaning: "搞笑的感覺（來自日文）",
+    example: "這個網站也太 KUSO 了吧！",
   },
   {
     word: "ㄘㄟˊ",
@@ -63,8 +63,8 @@ const DEAD_WORDS = [
   },
   {
     word: "叭噗啦",
-    meaning: "難過、想哭時的感嘆（裝可愛的語氣）",
-    example: "考試又沒過，叭噗啦 QAQ",
+    meaning: "類似屁gan，表示胡說八道、瞎扯",
+    example: "你叭噗啦",
   },
   {
     word: "閃光get",
@@ -74,12 +74,12 @@ const DEAD_WORDS = [
   {
     word: "告老師",
     meaning: "威脅要去打小報告（小學生把告訴老師簡化為告老師）",
-    example: "你插隊！我要告老師！",
+    example: "你插隊！我要告老師喔！",
   },
   {
     word: "BJ4",
     meaning: "不解釋（注音首字的縮寫）",
-    example: "今天的我就是帥，BJ4。",
+    example: "懂的就懂，BJ4。",
   },
   {
     word: "傻眼貓咪",
@@ -127,7 +127,7 @@ const DEAD_WORDS = [
 // 直接在引號裡換行，畫面上就會換行
 const INTRO_TEXT = `廣義來說死語是指過時的流行語、網路用語。
 
-哇哩勒！死語已經是很LKK的東西了嗎？！吧噗啦QAQ
+哇哩勒！死語已經是很LKK的東西了嗎？！叭噗啦QAQ
 
 不哭不哭眼淚是珍珠，我們研發出一款最HITO的節奏對戰遊戲，
 
