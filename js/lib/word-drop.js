@@ -279,11 +279,13 @@ const WordDrop = (function () {
     });
   }
 
+  const DROP_SPEED = 1.75; // 轉場動畫整體速度
+
   function loop(now) {
     if (state === "idle") return;
     const dt = Math.min(0.05, (now - lastTime) / 1000);
     lastTime = now;
-    update(dt);
+    update(dt * DROP_SPEED);
     if (state !== "idle") draw();
     requestAnimationFrame(loop);
   }
