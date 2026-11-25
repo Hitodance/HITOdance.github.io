@@ -142,6 +142,115 @@
   white-space: pre-line; /* data.js 裡的換行會照樣顯示 */
 }
 
+/* 打字機：還沒輪到的字先藏起來（位置先留著，字才不會一直跳動） */
+.intro-text .ch,
+.intro-text .ktv {
+  visibility: hidden;
+}
+.intro-text .shown {
+  visibility: visible;
+}
+/* KTV 死語：先是白字，粉色從左到右填過去（js/screens/intro.js） */
+.intro-text .ktv {
+  position: relative;
+  white-space: nowrap;
+  color: #ffffff; /* 還沒唱到：白字 */
+  /* 白字外面的黑框（像 KTV 字幕）：用一圈 text-shadow 圍出來，轉角是圓的、不會岔出尖角
+     框的粗細 = 第一圈的 2px（想改粗細，請 Claude 或用同樣的方式把數字一起改） */
+  text-shadow:
+    2.0px 0.0px 0 #000000,
+    1.8px 0.8px 0 #000000,
+    1.4px 1.4px 0 #000000,
+    0.8px 1.8px 0 #000000,
+    0.0px 2.0px 0 #000000,
+    -0.8px 1.8px 0 #000000,
+    -1.4px 1.4px 0 #000000,
+    -1.8px 0.8px 0 #000000,
+    -2.0px 0.0px 0 #000000,
+    -1.8px -0.8px 0 #000000,
+    -1.4px -1.4px 0 #000000,
+    -0.8px -1.8px 0 #000000,
+    -0.0px -2.0px 0 #000000,
+    0.8px -1.8px 0 #000000,
+    1.4px -1.4px 0 #000000,
+    1.8px -0.8px 0 #000000,
+    1.2px 0.0px 0 #000000,
+    1.1px 0.5px 0 #000000,
+    0.8px 0.8px 0 #000000,
+    0.5px 1.1px 0 #000000,
+    0.0px 1.2px 0 #000000,
+    -0.5px 1.1px 0 #000000,
+    -0.8px 0.8px 0 #000000,
+    -1.1px 0.5px 0 #000000,
+    -1.2px 0.0px 0 #000000,
+    -1.1px -0.5px 0 #000000,
+    -0.8px -0.8px 0 #000000,
+    -0.5px -1.1px 0 #000000,
+    -0.0px -1.2px 0 #000000,
+    0.5px -1.1px 0 #000000,
+    0.8px -0.8px 0 #000000,
+    1.1px -0.5px 0 #000000;
+}
+.intro-text .ktv::after {
+  content: attr(data-text); /* 疊在白字上面、一模一樣的粉色字 */
+  position: absolute;
+  left: 0;
+  top: 0;
+  color: #ff2df1; /* 填進去的粉色（想換成綠色就改成 #00ff40） */
+  /* 粉色字外面的白框：一樣用一圈 text-shadow，轉角圓圓的不會岔出來 */
+  text-shadow:
+    2.0px 0.0px 0 #ffffff,
+    1.8px 0.8px 0 #ffffff,
+    1.4px 1.4px 0 #ffffff,
+    0.8px 1.8px 0 #ffffff,
+    0.0px 2.0px 0 #ffffff,
+    -0.8px 1.8px 0 #ffffff,
+    -1.4px 1.4px 0 #ffffff,
+    -1.8px 0.8px 0 #ffffff,
+    -2.0px 0.0px 0 #ffffff,
+    -1.8px -0.8px 0 #ffffff,
+    -1.4px -1.4px 0 #ffffff,
+    -0.8px -1.8px 0 #ffffff,
+    -0.0px -2.0px 0 #ffffff,
+    0.8px -1.8px 0 #ffffff,
+    1.4px -1.4px 0 #ffffff,
+    1.8px -0.8px 0 #ffffff,
+    1.2px 0.0px 0 #ffffff,
+    1.1px 0.5px 0 #ffffff,
+    0.8px 0.8px 0 #ffffff,
+    0.5px 1.1px 0 #ffffff,
+    0.0px 1.2px 0 #ffffff,
+    -0.5px 1.1px 0 #ffffff,
+    -0.8px 0.8px 0 #ffffff,
+    -1.1px 0.5px 0 #ffffff,
+    -1.2px 0.0px 0 #ffffff,
+    -1.1px -0.5px 0 #ffffff,
+    -0.8px -0.8px 0 #ffffff,
+    -0.5px -1.1px 0 #ffffff,
+    -0.0px -1.2px 0 #ffffff,
+    0.5px -1.1px 0 #ffffff,
+    0.8px -0.8px 0 #ffffff,
+    1.1px -0.5px 0 #ffffff;
+  filter: drop-shadow(0 0 4px rgba(255, 0, 255, 0.85)) drop-shadow(0 0 10px rgba(255, 0, 255, 0.5)); /* 粉色光暈：px 是大小、0.85 / 0.5 是濃淡 */
+  clip-path: inset(-20px 100% -20px -20px); /* 一開始整個藏起來 */
+}
+.intro-text .ktv.sing::after {
+  /* 從左到右填滿，時間 = 字數 × INTRO_KTV_MS（在 intro.js 算好放在 --ktv-time） */
+  animation: ktv-fill var(--ktv-time, 600ms) linear forwards;
+}
+.intro-text .ktv.sung::after {
+  animation: none;
+  clip-path: inset(-20px -20px -20px -20px);
+}
+@keyframes ktv-fill {
+  from {
+    clip-path: inset(-20px 100% -20px -20px);
+  }
+  to {
+    clip-path: inset(-20px -20px -20px -20px);
+  }
+}
+
 /* 引言字跑完後出現的「歡樂一百點」，會在下方晃來晃去
    出現時機在 js/screens/intro.js（加上 .show） */
 .intro-joy {
