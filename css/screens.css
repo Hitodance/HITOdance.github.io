@@ -4,13 +4,6 @@
    ========================================================= */
 
 /* ============ 0.0 首頁 ============ */
-.home-deco {
-  /* AI 檔「素材」圖層，整張疊上去 */
-  position: absolute;
-  inset: 0;
-  width: 1920px;
-  height: 1080px;
-}
 .home-title {
   /* AI 檔「字」圖層，位置跟 AI 檔一樣 */
   position: absolute;
@@ -1948,5 +1941,88 @@
   }
   to {
     background-position: 200% 0;
+  }
+}
+
+/* ============ 首頁素材動畫（AI 檔「素材」圖層拆成一塊一塊，assets/images/home/） ============
+   標題字、右下的 D／C 提示、「按空白鍵進入遊戲」都不會動。
+   現在會動的：右邊「啊娘喂」三個圓、「ㄅㄧㄤˋ」四個方框、「死語復興」招牌，左邊「KUSO」「監介」招牌；其他素材先不動（想讓別塊也動，給它加 animation 就好） */
+.home-deco {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+.deco-piece {
+  position: absolute;
+  max-width: none;
+}
+
+/* 啊娘喂三個圓、ㄅㄧㄤˋ 四個方框：像跑馬燈泡一樣，一個接一個亮起來 */
+.deco-ah-1,
+.deco-ah-2,
+.deco-ah-3,
+.deco-bang-1,
+.deco-bang-2,
+.deco-bang-3,
+.deco-bang-4 {
+  animation: deco-chase 1.6s ease-out infinite; /* 1.6s = 輪一圈的時間 */
+}
+.deco-ah-2,
+.deco-bang-2 {
+  animation-delay: 0.4s;
+}
+.deco-ah-3,
+.deco-bang-3 {
+  animation-delay: 0.8s;
+}
+.deco-bang-4 {
+  animation-delay: 1.2s;
+}
+@keyframes deco-chase {
+  0% {
+    opacity: 1;
+    filter: brightness(1.8) drop-shadow(0 0 8px currentColor);
+    transform: scale(1.12);
+  }
+  25% {
+    opacity: 1;
+    filter: brightness(1);
+    transform: scale(1);
+  }
+  100% {
+    opacity: 0.55;
+    filter: brightness(0.9);
+    transform: scale(1);
+  }
+}
+
+/* 死語復興、KUSO、監介招牌：像快壞掉的霓虹燈，偶爾閃一兩下（秒數 = 閃一輪的時間，三個錯開才不會一起閃） */
+.deco-panel {
+  animation: deco-flicker 4.1s linear 1s infinite;
+}
+.deco-kuso-box {
+  animation: deco-flicker 3.2s linear infinite;
+}
+.deco-jian {
+  animation: deco-flicker 3.7s linear 1.8s infinite;
+}
+@keyframes deco-flicker {
+  0%,
+  18%,
+  22%,
+  26%,
+  60%,
+  100% {
+    opacity: 1;
+    filter: brightness(1.2);
+  }
+  20%,
+  24% {
+    opacity: 0.25;
+    filter: brightness(0.6);
+  }
+  62%,
+  64% {
+    opacity: 0.6;
   }
 }
