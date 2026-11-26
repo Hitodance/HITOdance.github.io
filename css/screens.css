@@ -8,9 +8,44 @@
   /* AI 檔「字」圖層，位置跟 AI 檔一樣 */
   position: absolute;
   left: 294px;
-  top: 147px;
+  top: 197px; /* 原本 147px，往下移 50px */
   width: 1331px;
   animation: title-float 3s ease-in-out infinite alternate;
+}
+/* 標題裡面三張圖：字撐出大小，扇子疊在字的後面（位置照原本 title.png 裡扇子的位置） */
+.home-title .title-text {
+  position: relative;
+  display: block;
+  width: 100%;
+}
+.home-title .title-fan {
+  position: absolute;
+  left: 26.26%;
+  top: 0;
+  width: 47.49%;
+}
+.title-fan-lit .title-fan-on {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 100%;
+  /* 一開始全部不亮，js/lib/title-fan.js 會換成只露出亮的扇骨 */
+  -webkit-mask-image: linear-gradient(transparent, transparent);
+  mask-image: linear-gradient(transparent, transparent);
+}
+/* 撐出亮扇子的高度（跟扇子圖一樣 2:1） */
+.title-fan-lit {
+  aspect-ratio: 2 / 1;
+  /* 外圈桃紅色霓虹光（只會出現在亮的扇骨周圍）：數字越大光越散 */
+  filter: drop-shadow(0 0 6px rgba(255, 80, 210, 0.3))
+    drop-shadow(0 0 18px rgba(255, 40, 180, 0.3));
+}
+/* 霓虹光暈：把亮的扇骨模糊、調亮，墊在清楚的色塊下面（光暈大小改 blur、亮度改 brightness） */
+.title-fan-glow {
+  position: absolute;
+  inset: 0;
+  filter: blur(3px) brightness(0.5) saturate(1.6);
+  opacity: 0.95;
 }
 @keyframes title-float {
   from {
@@ -2027,5 +2062,29 @@
   62%,
   64% {
     opacity: 0.6;
+  }
+}
+
+/* ============ 首頁星星（留在原位、同方向旋轉；速度和方向在 js/lib/home-stars.js） ============ */
+.home-stars {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 1920px;
+  height: 1080px;
+  pointer-events: none;
+}
+.home-star {
+  position: absolute;
+  max-width: none;
+  transform-origin: center;
+  will-change: transform;
+}
+@keyframes home-star-spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
   }
 }

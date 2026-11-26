@@ -55,15 +55,29 @@
           <img class="deco-piece deco-ah-3" src="assets/images/home/ah-3.png" alt="" style="left:1797.1px;top:451.2px;width:122.9px;height:87.4px" />
           <img class="deco-piece deco-panel" src="assets/images/home/panel.png" alt="" style="left:1687.2px;top:308.2px;width:95.8px;height:341.0px" />
           <img class="deco-piece deco-fan" src="assets/images/home/fan.png" alt="" style="left:1601.8px;top:327.1px;width:85.4px;height:177.1px" />
-          <img class="deco-piece deco-stars" src="assets/images/home/stars.png" alt="" style="left:0;top:0;width:1920px;height:1080px" />
+          <!-- 星星一顆一顆，留在原位、同方向旋轉（js/lib/home-stars.js）；star-4 疊在 star-3 裡、star-6 疊在 star-5 裡 -->
+          <img class="home-star" src="assets/images/home/star-3.svg" alt="" style="left:2.7px;top:586.8px;width:133.2px;height:133.2px" />
+          <img class="home-star" src="assets/images/home/star-4.svg" alt="" style="left:30.4px;top:614.5px;width:77.9px;height:77.9px" />
+          <img class="home-star" src="assets/images/home/star-5.svg" alt="" style="left:1706.6px;top:659.1px;width:156.8px;height:156.8px" />
+          <img class="home-star" src="assets/images/home/star-6.svg" alt="" style="left:1745.5px;top:698.0px;width:79.0px;height:79.0px" />
+          <img class="home-star" src="assets/images/home/star-7.svg" alt="" style="left:1625.0px;top:610.1px;width:105.6px;height:105.6px" />
+          <img class="home-star" src="assets/images/home/star-8.svg" alt="" style="left:1648.1px;top:782.4px;width:78.4px;height:78.4px" />
+          <img class="home-star" src="assets/images/home/star-9.svg" alt="" style="left:145.3px;top:778.5px;width:131.0px;height:131.0px" />
+          <img class="home-star" src="assets/images/home/star-10.svg" alt="" style="left:27.3px;top:843.5px;width:195.0px;height:195.0px" />
+          <img class="home-star" src="assets/images/home/star-11.svg" alt="" style="left:187.0px;top:912.0px;width:100.0px;height:100.0px" />
         </div>
         <!-- 最上面的桃粉色跑馬燈（js/lib/marquee.js 會把文字重複變成跑馬燈） -->
         <div class="marquee-bar">要打去練舞室打　陳弈晴 白彥庭 連緒</div>
-        <img
-          class="home-title"
-          src="assets/images/title.png"
-          alt="要打去練舞室打"
-        />
+        <!-- 標題：扇子（沒亮／亮 兩張疊在一起，js/lib/title-fan.js 控制哪幾根扇骨亮）+ 字 -->
+        <div class="home-title">
+          <img class="title-fan" src="assets/images/title_fan_off.png" alt="" />
+          <!-- 亮的扇骨：下面一層模糊放大當霓虹光暈，上面一層是清楚的色塊 -->
+          <div class="title-fan title-fan-lit">
+            <div class="title-fan-glow"><img class="title-fan-on" src="assets/images/title_fan_on.png" alt="" /></div>
+            <img class="title-fan-on" src="assets/images/title_fan_on.png" alt="" />
+          </div>
+          <img class="title-text" src="assets/images/title_text.png" alt="要打去練舞室打" />
+        </div>
         <p class="home-dict-hint">
           <span class="key">D</span> 死語詞典<br /><span class="key">C</span>
           版權資訊
@@ -379,6 +393,8 @@
     <script src="js/screens/loading.js"></script>
     <script src="js/screens/battle.js"></script>
     <script src="js/screens/result.js"></script>
+    <script src="js/lib/title-fan.js"></script>
+    <script src="js/lib/home-stars.js"></script>
     <script src="js/main.js"></script>
 
     <!-- 3D 電子花車舞台：three.js 從網路載入。載不到的話對戰頁照樣能玩，只是沒有 3D 舞台 -->
