@@ -35,10 +35,25 @@ import { RenderPass } from "three/addons/postprocessing/RenderPass.js";
 import { UnrealBloomPass } from "three/addons/postprocessing/UnrealBloomPass.js";
 import { OutputPass } from "three/addons/postprocessing/OutputPass.js";
 import { HALL, buildHall } from "./hall-stage.js";
+import { createFireworks } from "./fireworks.js";
 
 // ---------- 可以調整的設定 ----------
 const CONFIG = {
-  model: "assets/stage/float.glb",   // Blender 匯出的花車
+  // 花車模型拆成兩份（檔案從 16MB 變成約 2MB，畫面一樣）：
+  //   float_lite.glb  Blender 匯出的花車，但拿掉了上千顆 LED 燈泡（鋼架、圖稿、音箱…都還在）
+  //   float_leds.bin / .json  每顆燈泡的位置和大小，網頁打開時用程式一次畫出來
+  // 想換回原本的整個模型：model 改回 "assets/stage/float.glb"、leds 改成 null
+  model: "assets/stage/float_lite.glb",
+  leds: "assets/stage/float_leds",
+
+  // 把花車橫向拉寬（1 = 原本寬度）：下層舞台、上層看板各自拉。
+  // 燈泡排成的小圖案（星星、雪花、音箱圈圈、頂上的煙火）只會整組往外移、不會變形；看板上的圖稿會跟著拉寬
+  stretch: {
+    bottom: 1.33,     // 下層舞台：舞台面、裙板（音箱、彩虹燈管、輪胎跟著往外移）
+    back: 1.62,       // 下層背板（「要打去練舞室打」那片）：跟下層舞台一樣寬
+    top: 1.49,        // 上層：大看板、鋼架（最短；立柱、探照燈跟著往外移）
+    split: 3.42,      // 高度在這以上算上層（three.js 的 y，公尺）
+  },
 
   renderScale: 0.75,        // 算圖解析度（1 = 1920×1080；電腦跑不動就調小，例如 0.5）
   bloom: { strength: 0.5, radius: 0.8, threshold: 1.0 },   // LED 光暈（不會閃，固定亮）
@@ -157,6 +172,93 @@ const modelPromise = new GLTFLoader().loadAsync(CONFIG.model);
 modelPromise.catch(function (error) {
   console.warn("電子花車模型載入失敗：" + CONFIG.model, error);
 });
+
+// 燈泡資料：.json 是每一組燈泡的顏色、亮度，.bin 是每顆燈泡的 x, y, z, 半徑
+const ledPromise = CONFIG.leds
+  ? Promise.all([
+      fetch(CONFIG.leds + ".json").then((r) => r.json()),
+      fetch(CONFIG.leds + ".bin").then((r) => r.arrayBuffer()),
+    ]).then(function (parts) {
+      return { info: parts[0], data: new Float32Array(parts[1]) };
+    })
+  : Promise.resolve(null);
+ledPromise.catch(function (error) {
+  console.warn("LED 燈泡資料載入失敗：" + CONFIG.leds, error);
+});
+
+// 把花車模型橫向拉寬（CONFIG.stretch）：大片的東西拉寬，音箱、立柱這種「一個個的東西」只往外移、不變形
+const STRETCH_SHIFT = ["音箱塔", "喇叭", "直立燈管", "輪胎", "探照燈", "看板立柱"];
+const STRETCH_KEEP = ["樓梯", "中央裙板", "路面"];
+function stretchModel(model) {
+  const st = CONFIG.stretch;
+  if (!st || (st.bottom === 1 && st.top === 1 && st.back === 1)) return;
+  const upper = new THREE.Group(), lower = new THREE.Group(), back = new THREE.Group();
+  upper.scale.x = st.top;
+  lower.scale.x = st.bottom;
+  back.scale.x = st.back;
+  model.updateMatrixWorld(true);
+  const box = new THREE.Box3(), c = new THREE.Vector3();
+  model.children.slice().forEach(function (obj) {
+    const name = obj.name || "";
+    if (STRETCH_KEEP.some((n) => name.indexOf(n) === 0)) return;
+    box.setFromObject(obj);
+    if (box.isEmpty()) return;
+    box.getCenter(c);
+    const sx = c.y > st.split ? st.top : st.bottom;
+    if (STRETCH_SHIFT.some((n) => name.indexOf(n) === 0)) {
+      obj.position.x += c.x * (sx - 1);          // 整個往外移
+    } else if (name.indexOf("下層背板") === 0 || name.indexOf("LED霓虹燈條") === 0) {
+      back.add(obj);                             // 下層背板：跟舞台一樣寬
+    } else {
+      (c.y > st.split ? upper : lower).add(obj);  // 放進會拉寬的群組
+    }
+  });
+  model.add(upper, lower, back);
+}
+
+// 用程式把燈泡畫出來：同一組顏色的燈泡用一個 InstancedMesh（一次畫幾千顆，很省效能）
+function buildLeds(leds) {
+  const out = new THREE.Group();
+  if (!leds) return out;
+  const stride = leds.info.stride || 4;
+  const bulb = new THREE.IcosahedronGeometry(1, 0);   // 跟 Blender 一樣是正二十面體
+  const m = new THREE.Matrix4();
+  leds.info.groups.forEach(function (g) {
+    if (!g.count) return;
+    const geo = bulb.clone();
+    const phase = new Float32Array(g.count);
+    const chase = new Float32Array(g.count);
+    const glow = 1 + CONFIG.ledGlow * g.strength;
+    const mat = new THREE.MeshBasicMaterial({
+      color: new THREE.Color(g.emissive[0], g.emissive[1], g.emissive[2]).multiplyScalar(glow),
+    });
+    mat.userData.glow = glow;
+    addBlink(mat);
+    const mesh = new THREE.InstancedMesh(geo, mat, g.count);
+    mesh.name = g.name;
+    for (let i = 0; i < g.count; i++) {
+      const k = (g.start + i) * stride;
+      let x = leds.data[k];
+      const y = leds.data[k + 1], z = leds.data[k + 2], r = leds.data[k + 3];
+      if (stride >= 7) {
+        // 拉寬：大片的燈條跟著拉；小圖案整組平移（k+4 = 圖案中心 x，k+5 = 1 拉 / 0 平移，k+6 = 1 上層 / 0 下層）
+        const part = leds.data[k + 6];   // 0 = 下層舞台、1 = 上層看板、2 = 下層背板
+        const sx = part > 1.5 ? CONFIG.stretch.back : part > 0.5 ? CONFIG.stretch.top : CONFIG.stretch.bottom;
+        x = leds.data[k + 5] > 0.5 ? x * sx : x + leds.data[k + 4] * (sx - 1);
+      }
+      m.makeScale(r, r, r).setPosition(x, y, z);
+      mesh.setMatrixAt(i, m);
+      phase[i] = Math.random();          // 每顆燈泡自己的閃爍節奏
+      chase[i] = x * 1.6 + y * 1.1;      // 跑馬燈模式用的位置
+    }
+    geo.setAttribute("aPhase", new THREE.InstancedBufferAttribute(phase, 1));
+    geo.setAttribute("aChase", new THREE.InstancedBufferAttribute(chase, 1));
+    mesh.instanceMatrix.needsUpdate = true;
+    mesh.frustumCulled = false;
+    out.add(mesh);
+  });
+  return out;
+}
 
 // ============================================================
 //  整理模型的材質
@@ -354,7 +456,7 @@ function initRenderer() {
 }
 
 // 電子花車舞台（模型載好才建）
-function buildFloatWorld(gltf) {
+function buildFloatWorld(gltf, leds) {
   const group = new THREE.Group();
 
   // 燈光：只照亮鋼架、地板、音箱（LED 和圖稿自己會亮）
@@ -370,7 +472,12 @@ function buildFloatWorld(gltf) {
   // 花車
   const model = gltf.scene;
   prepareModel(model);
+  stretchModel(model);          // 橫向拉寬（CONFIG.stretch）
   group.add(model);
+  group.add(buildLeds(leds));   // 燈泡（用程式畫）
+  // 舞台後面的天空放煙火（js/lib/fireworks.js）
+  const fireworks = createFireworks();
+  group.add(fireworks.object);
 
   // logo 看板
   if (CONFIG.logo && CONFIG.logo.image) {
@@ -416,7 +523,9 @@ function buildFloatWorld(gltf) {
       artMaterials.forEach((mat) => mat.color.setScalar(CONFIG.artBrightness * m));
       if (logoMaterial) logoMaterial.color.setScalar(CONFIG.logo.brightness * m);
     },
-    update: null,
+    update: function (dt) {
+      fireworks.update(dt, blinkUniforms.uMaster.value);   // 結算頁暗場時煙火也跟著暗一點
+    },
   };
   return world;
 }
@@ -439,8 +548,8 @@ function ensureWorld(key) {
         return finishWorld(buildHall({ renderer: renderer, renderScale: CONFIG.renderScale }), HALL);
       });
     } else {
-      worldPromises[key] = modelPromise.then(function (gltf) {
-        return finishWorld(buildFloatWorld(gltf), CONFIG);
+      worldPromises[key] = Promise.all([modelPromise, ledPromise]).then(function (parts) {
+        return finishWorld(buildFloatWorld(parts[0], parts[1]), CONFIG);
       });
     }
     worldPromises[key].then(function (w) { worlds[key] = w; });
