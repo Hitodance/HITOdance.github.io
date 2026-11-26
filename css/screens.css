@@ -1984,7 +1984,7 @@
 
 /* ============ 首頁素材動畫（AI 檔「素材」圖層拆成一塊一塊，assets/images/home/） ============
    標題字、右下的 D／C 提示、「按空白鍵進入遊戲」都不會動。
-   現在會動的：右邊「啊娘喂」三個圓、「ㄅㄧㄤˋ」四個方框、「死語復興」招牌，左邊「KUSO」「監介」招牌；其他素材先不動（想讓別塊也動，給它加 animation 就好） */
+   現在會動的：左邊「藍瘦香菇」四個圓、右邊「啊娘喂」三個圓、「ㄅㄧㄤˋ」四個方框、「死語復興」招牌，左邊「KUSO」「監介」招牌；其他素材先不動（想讓別塊也動，給它加 animation 就好） */
 .home-deco {
   position: absolute;
   inset: 0;
@@ -1995,42 +1995,247 @@
   max-width: none;
 }
 
-/* 啊娘喂三個圓、ㄅㄧㄤˋ 四個方框：像跑馬燈泡一樣，一個接一個亮起來 */
-.deco-ah-1,
-.deco-ah-2,
-.deco-ah-3,
+/* 啊娘喂三個圓：一個接一個亮起來（亮了就保持亮）→ 三個一起閃兩下 → 暗掉 3 秒 → 重來
+   輪一圈 4.9s。要改秒數直接跟 Claude 說，三個圓的時間要一起重算 */
+.deco-ah-1 {
+  animation: deco-ah-on-1 4.9s linear infinite;
+}
+.deco-ah-2 {
+  animation: deco-ah-on-2 4.9s linear infinite;
+}
+.deco-ah-3 {
+  animation: deco-ah-on-3 4.9s linear infinite;
+}
+@keyframes deco-ah-on-1 {
+  0.0%,
+  22.4% {
+    opacity: 1;
+  }
+  22.6%,
+  26.5% {
+    opacity: 0.45;
+  }
+  26.7%,
+  30.6% {
+    opacity: 1;
+  }
+  30.8%,
+  34.7% {
+    opacity: 0.45;
+  }
+  34.9%,
+  38.8% {
+    opacity: 1;
+  }
+  39.0%,
+  100.0% {
+    opacity: 0.45;
+  }
+}
+@keyframes deco-ah-on-2 {
+  0.0%,
+  8.2% {
+    opacity: 0.45;
+  }
+  8.4%,
+  22.4% {
+    opacity: 1;
+  }
+  22.6%,
+  26.5% {
+    opacity: 0.45;
+  }
+  26.7%,
+  30.6% {
+    opacity: 1;
+  }
+  30.8%,
+  34.7% {
+    opacity: 0.45;
+  }
+  34.9%,
+  38.8% {
+    opacity: 1;
+  }
+  39.0%,
+  100.0% {
+    opacity: 0.45;
+  }
+}
+@keyframes deco-ah-on-3 {
+  0.0%,
+  16.3% {
+    opacity: 0.45;
+  }
+  16.5%,
+  22.4% {
+    opacity: 1;
+  }
+  22.6%,
+  26.5% {
+    opacity: 0.45;
+  }
+  26.7%,
+  30.6% {
+    opacity: 1;
+  }
+  30.8%,
+  34.7% {
+    opacity: 0.45;
+  }
+  34.9%,
+  38.8% {
+    opacity: 1;
+  }
+  39.0%,
+  100.0% {
+    opacity: 0.45;
+  }
+}
+
+/* 藍瘦香菇四個圓：跟啊娘喂一樣，一個接一個亮起來 → 四個一起閃兩下 → 暗掉 3 秒 → 重來（輪一圈 5.3s） */
+.deco-circle-1 {
+  animation: deco-circle-on-1 5.3s linear infinite;
+}
+.deco-circle-2 {
+  animation: deco-circle-on-2 5.3s linear infinite;
+}
+.deco-circle-3 {
+  animation: deco-circle-on-3 5.3s linear infinite;
+}
+.deco-circle-4 {
+  animation: deco-circle-on-4 5.3s linear infinite;
+}
+@keyframes deco-circle-on-1 {
+  0.0%,
+  28.3% {
+    opacity: 1;
+  }
+  28.5%,
+  32.1% {
+    opacity: 0.45;
+  }
+  32.3%,
+  35.8% {
+    opacity: 1;
+  }
+  36.0%,
+  39.6% {
+    opacity: 0.45;
+  }
+  39.8%,
+  43.4% {
+    opacity: 1;
+  }
+  43.6%,
+  100.0% {
+    opacity: 0.45;
+  }
+}
+@keyframes deco-circle-on-2 {
+  0.0%,
+  7.5% {
+    opacity: 0.45;
+  }
+  7.7%,
+  28.3% {
+    opacity: 1;
+  }
+  28.5%,
+  32.1% {
+    opacity: 0.45;
+  }
+  32.3%,
+  35.8% {
+    opacity: 1;
+  }
+  36.0%,
+  39.6% {
+    opacity: 0.45;
+  }
+  39.8%,
+  43.4% {
+    opacity: 1;
+  }
+  43.6%,
+  100.0% {
+    opacity: 0.45;
+  }
+}
+@keyframes deco-circle-on-3 {
+  0.0%,
+  15.1% {
+    opacity: 0.45;
+  }
+  15.3%,
+  28.3% {
+    opacity: 1;
+  }
+  28.5%,
+  32.1% {
+    opacity: 0.45;
+  }
+  32.3%,
+  35.8% {
+    opacity: 1;
+  }
+  36.0%,
+  39.6% {
+    opacity: 0.45;
+  }
+  39.8%,
+  43.4% {
+    opacity: 1;
+  }
+  43.6%,
+  100.0% {
+    opacity: 0.45;
+  }
+}
+@keyframes deco-circle-on-4 {
+  0.0%,
+  22.6% {
+    opacity: 0.45;
+  }
+  22.8%,
+  28.3% {
+    opacity: 1;
+  }
+  28.5%,
+  32.1% {
+    opacity: 0.45;
+  }
+  32.3%,
+  35.8% {
+    opacity: 1;
+  }
+  36.0%,
+  39.6% {
+    opacity: 0.45;
+  }
+  39.8%,
+  43.4% {
+    opacity: 1;
+  }
+  43.6%,
+  100.0% {
+    opacity: 0.45;
+  }
+}
+
+/* ㄅㄧㄤˋ 四個方框：四個一起同時閃 */
 .deco-bang-1,
 .deco-bang-2,
 .deco-bang-3,
 .deco-bang-4 {
-  animation: deco-chase 1.6s ease-out infinite; /* 1.6s = 輪一圈的時間 */
+  animation: deco-blink 1.2s steps(1, end) infinite; /* 1.2s = 亮＋暗一次的時間 */
 }
-.deco-ah-2,
-.deco-bang-2 {
-  animation-delay: 0.4s;
-}
-.deco-ah-3,
-.deco-bang-3 {
-  animation-delay: 0.8s;
-}
-.deco-bang-4 {
-  animation-delay: 1.2s;
-}
-@keyframes deco-chase {
+@keyframes deco-blink {
   0% {
     opacity: 1;
-    filter: brightness(1.8) drop-shadow(0 0 8px currentColor);
-    transform: scale(1.12);
   }
-  25% {
-    opacity: 1;
-    filter: brightness(1);
-    transform: scale(1);
-  }
-  100% {
-    opacity: 0.55;
-    filter: brightness(0.9);
-    transform: scale(1);
+  50% {
+    opacity: 0.45;
   }
 }
 
