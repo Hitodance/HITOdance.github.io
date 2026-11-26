@@ -151,35 +151,35 @@
   /* 白字外面的黑框（像 KTV 字幕）：用一圈 text-shadow 圍出來，轉角是圓的、不會岔出尖角
      框的粗細 = 第一圈的 2px（想改粗細，請 Claude 或用同樣的方式把數字一起改） */
   text-shadow:
-    2.0px 0.0px 0 #000000,
+    2px 0px 0 #000000,
     1.8px 0.8px 0 #000000,
     1.4px 1.4px 0 #000000,
     0.8px 1.8px 0 #000000,
-    0.0px 2.0px 0 #000000,
+    0px 2px 0 #000000,
     -0.8px 1.8px 0 #000000,
     -1.4px 1.4px 0 #000000,
     -1.8px 0.8px 0 #000000,
-    -2.0px 0.0px 0 #000000,
+    -2px 0px 0 #000000,
     -1.8px -0.8px 0 #000000,
     -1.4px -1.4px 0 #000000,
     -0.8px -1.8px 0 #000000,
-    -0.0px -2.0px 0 #000000,
+    -0px -2px 0 #000000,
     0.8px -1.8px 0 #000000,
     1.4px -1.4px 0 #000000,
     1.8px -0.8px 0 #000000,
-    1.2px 0.0px 0 #000000,
+    1.2px 0px 0 #000000,
     1.1px 0.5px 0 #000000,
     0.8px 0.8px 0 #000000,
     0.5px 1.1px 0 #000000,
-    0.0px 1.2px 0 #000000,
+    0px 1.2px 0 #000000,
     -0.5px 1.1px 0 #000000,
     -0.8px 0.8px 0 #000000,
     -1.1px 0.5px 0 #000000,
-    -1.2px 0.0px 0 #000000,
+    -1.2px 0px 0 #000000,
     -1.1px -0.5px 0 #000000,
     -0.8px -0.8px 0 #000000,
     -0.5px -1.1px 0 #000000,
-    -0.0px -1.2px 0 #000000,
+    -0px -1.2px 0 #000000,
     0.5px -1.1px 0 #000000,
     0.8px -0.8px 0 #000000,
     1.1px -0.5px 0 #000000;
@@ -192,39 +192,40 @@
   color: #ff2df1; /* 填進去的粉色（想換成綠色就改成 #00ff40） */
   /* 粉色字外面的白框：一樣用一圈 text-shadow，轉角圓圓的不會岔出來 */
   text-shadow:
-    2.0px 0.0px 0 #ffffff,
+    2px 0px 0 #ffffff,
     1.8px 0.8px 0 #ffffff,
     1.4px 1.4px 0 #ffffff,
     0.8px 1.8px 0 #ffffff,
-    0.0px 2.0px 0 #ffffff,
+    0px 2px 0 #ffffff,
     -0.8px 1.8px 0 #ffffff,
     -1.4px 1.4px 0 #ffffff,
     -1.8px 0.8px 0 #ffffff,
-    -2.0px 0.0px 0 #ffffff,
+    -2px 0px 0 #ffffff,
     -1.8px -0.8px 0 #ffffff,
     -1.4px -1.4px 0 #ffffff,
     -0.8px -1.8px 0 #ffffff,
-    -0.0px -2.0px 0 #ffffff,
+    -0px -2px 0 #ffffff,
     0.8px -1.8px 0 #ffffff,
     1.4px -1.4px 0 #ffffff,
     1.8px -0.8px 0 #ffffff,
-    1.2px 0.0px 0 #ffffff,
+    1.2px 0px 0 #ffffff,
     1.1px 0.5px 0 #ffffff,
     0.8px 0.8px 0 #ffffff,
     0.5px 1.1px 0 #ffffff,
-    0.0px 1.2px 0 #ffffff,
+    0px 1.2px 0 #ffffff,
     -0.5px 1.1px 0 #ffffff,
     -0.8px 0.8px 0 #ffffff,
     -1.1px 0.5px 0 #ffffff,
-    -1.2px 0.0px 0 #ffffff,
+    -1.2px 0px 0 #ffffff,
     -1.1px -0.5px 0 #ffffff,
     -0.8px -0.8px 0 #ffffff,
     -0.5px -1.1px 0 #ffffff,
-    -0.0px -1.2px 0 #ffffff,
+    -0px -1.2px 0 #ffffff,
     0.5px -1.1px 0 #ffffff,
     0.8px -0.8px 0 #ffffff,
     1.1px -0.5px 0 #ffffff;
-  filter: drop-shadow(0 0 4px rgba(255, 0, 255, 0.85)) drop-shadow(0 0 10px rgba(255, 0, 255, 0.5)); /* 粉色光暈：px 是大小、0.85 / 0.5 是濃淡 */
+  filter: drop-shadow(0 0 4px rgba(255, 0, 255, 0.85))
+    drop-shadow(0 0 10px rgba(255, 0, 255, 0.5)); /* 粉色光暈：px 是大小、0.85 / 0.5 是濃淡 */
   clip-path: inset(-20px 100% -20px -20px); /* 一開始整個藏起來 */
 }
 .intro-text .ktv.sing::after {
@@ -407,10 +408,12 @@
 /* 小人外面一圈霓虹光暈（跟死語詞典的大字一樣，沿著小人的形狀發光）
    P1 綠色、P2 粉紅色；三層 drop-shadow 從裡到外：貼邊的亮線 → 中光暈 → 外圍散光，數字越大越散 */
 .model-stand.p1 .dancer {
-  filter: drop-shadow(0 0 3px #00ff40) drop-shadow(0 0 10px #00ff40) drop-shadow(0 0 24px #00ff40);
+  filter: drop-shadow(0 0 3px #00ff40) drop-shadow(0 0 10px #00ff40)
+    drop-shadow(0 0 24px #00ff40);
 }
 .model-stand.p2 .dancer {
-  filter: drop-shadow(0 0 3px #ff2df1) drop-shadow(0 0 10px #ff00ff) drop-shadow(0 0 24px #ff00ff);
+  filter: drop-shadow(0 0 3px #ff2df1) drop-shadow(0 0 10px #ff00ff)
+    drop-shadow(0 0 24px #ff00ff);
 }
 
 /* ============ 3.0 / 4.0 舞台、音樂選擇（共用） ============
@@ -1167,7 +1170,7 @@
 }
 
 .receptor {
-  opacity: 1;
+  opacity: 0.6;
 }
 
 .receptor[data-dir="left"] {
