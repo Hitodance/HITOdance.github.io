@@ -2293,3 +2293,68 @@
     transform: rotate(360deg);
   }
 }
+
+/* ============ 結算頁：兩個小人互嗆的對話框（js/lib/taunt.js） ============
+   對話框是一整個造型：框和尾巴是同一條 SVG 線畫的，尾巴尖端會一直對準講話的人的頭。
+   P1 綠色、P2 粉色（跟分數一樣的顏色）。
+   鏡頭特寫時框在小人腳下（尾巴往上指），拉遠之後框在小人頭上（尾巴往下指） */
+.taunt {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 1920px;
+  height: 1080px;
+  z-index: 6;
+  display: none;
+  pointer-events: none;
+}
+.taunt.show {
+  display: block;
+}
+.taunt.p1 {
+  --taunt-color: var(--p1);
+}
+.taunt.p2 {
+  --taunt-color: #ff2df1;
+}
+.taunt svg {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 1920px;
+  height: 1080px;
+  overflow: visible;
+}
+.taunt path {
+  fill: rgba(0, 0, 0, 0.82); /* 框裡面的黑底 */
+  stroke: var(--taunt-color);
+  stroke-width: 5px; /* 框的粗細 */
+  stroke-linejoin: round;
+  filter: drop-shadow(0 0 6px var(--taunt-color)) drop-shadow(0 0 16px var(--taunt-color)); /* 霓虹光暈 */
+}
+.taunt-text {
+  position: absolute;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 16px 30px 14px;
+  white-space: nowrap;
+  font-size: 46px; /* 對話框的字多大 */
+  font-weight: 700;
+  color: #ffffff;
+  text-shadow: 0 0 8px var(--taunt-color);
+}
+/* 換句話的時候，從講話的人頭上「啵」一下彈出來 */
+.taunt.pop {
+  animation: taunt-pop 0.4s cubic-bezier(0.2, 1.7, 0.4, 1);
+}
+@keyframes taunt-pop {
+  from {
+    opacity: 0;
+    transform: scale(0.3);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}

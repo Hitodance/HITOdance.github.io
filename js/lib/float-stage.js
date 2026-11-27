@@ -1052,6 +1052,22 @@ window.FloatStage = {
   focusPlayers: function (players) {
     if (running && cameraMode === "fixed") focusPlayers(players);
   },
+  // 結算頁互嗆用（js/lib/taunt.js）：特寫每個人拍幾秒、飛過去幾秒、回全景幾秒
+  focusTiming: function () {
+    const r = SC().resultCamera;
+    return { seconds: r.closeUp.seconds, moveSeconds: r.closeUp.moveSeconds, backSeconds: r.backSeconds };
+  },
+  // 結算頁互嗆用：小人頭頂在畫面上的位置（1920×1080 的座標），對話框就放在這裡
+  // 第二個參數 at：0 = 腳底、1 = 頭頂（預設 1.05，頭頂再高一點點）
+  headPoint: function (player, at) {
+    const d = dancers[player];
+    if (!running || !d || !camera) return null;
+    const v = d.mesh.position.clone();
+    v.y += SC().dancer.height * (at === undefined ? 1.05 : at);
+    v.project(camera);
+    if (v.z > 1) return null;           // 在鏡頭後面
+    return { x: ((v.x + 1) / 2) * 1920, y: ((1 - v.y) / 2) * 1080 };
+  },
   CONFIG: CONFIG,
 };
 

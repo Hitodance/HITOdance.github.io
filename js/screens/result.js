@@ -248,6 +248,8 @@ registerScreen("result", {
       if (onFloat && window.FloatStage && FloatStage.focusPlayers) {
         FloatStage.focusPlayers(score2 > score1 ? ["p2", "p1"] : ["p1", "p2"]);
       }
+      // 兩個小人用死語互嗆，跟著鏡頭的順序（js/lib/taunt.js，台詞在 js/data.js 的 TAUNTS）
+      Taunt.start(score2 > score1 ? ["p2", "p1"] : ["p1", "p2"], score1 === score2 ? "tie" : "win");
     };
 
     startReveal(run);
@@ -256,6 +258,7 @@ registerScreen("result", {
 
   onLeave: function () {
     resultRun++;
+    Taunt.stop();
     stopReveal();
     stopResultStage();
     resultDancers.p1.stop();
